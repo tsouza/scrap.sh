@@ -25,32 +25,34 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
         return context -> subscriber -> subscriber.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
-                Object data = context.data();
-                if (data instanceof Text)
-                    data = ((Text) data).getTextContent();
-
-                else if (data instanceof Attr)
-                    data = ((Attr) data).getValue();
-
-                else if (data instanceof Node) {
-                    try {
-                        data = nodeToString((Node) data);
-                    } catch (Exception e) {
-                        subscriber.onError(e);
-                        subscriber.onComplete();
-                        return;
-                    }
+                try {
+                    String data = ToStringFunctionFactory.this.toString(context.data());
+                    subscriber.onNext(context.withData(data));
+                    subscriber.onComplete();
+                } catch (TransformerException e) {
+                    subscriber.onError(e);
+                    subscriber.onComplete();
                 }
-
-                else if (!(data instanceof String))
-                    data = data.toString();
-
-                subscriber.onNext(context.withData(data));
-                subscriber.onComplete();
             }
 
             @Override public void cancel() {}
         });
+    }
+
+    protected String toString(Object data) throws TransformerException {
+        if (data instanceof Text)
+            data = ((Text) data).getTextContent();
+
+        else if (data instanceof Attr)
+            data = ((Attr) data).getValue();
+
+        else if (data instanceof Node)
+            data = nodeToString((Node) data);
+
+        else if (!(data instanceof String))
+            data = data.toString();
+
+        return (String) data;
     }
 
     private String nodeToString(Node node) throws TransformerException {

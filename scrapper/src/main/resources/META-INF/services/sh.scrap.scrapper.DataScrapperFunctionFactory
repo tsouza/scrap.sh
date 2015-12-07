@@ -1,5 +1,8 @@
 sh.scrap.scrapper.functions.ForEachFunctionFactory
 sh.scrap.scrapper.functions.JsonFunctionFactory
+sh.scrap.scrapper.functions.RegexpFunctionFactory
 sh.scrap.scrapper.functions.ToIterableFunctionFactory
 sh.scrap.scrapper.functions.ToObjectFunctionFactory
 sh.scrap.scrapper.functions.ToStringFunctionFactory
+sh.scrap.scrapper.functions.ToXmlFunctionFactory
+sh.scrap.scrapper.functions.XPathFunctionFactory

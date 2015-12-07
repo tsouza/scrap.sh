@@ -6,18 +6,18 @@ import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-import reactor.rx.Streams;
 import sh.scrap.scrapper.DataScrapperExecutionContext;
 import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
 import sh.scrap.scrapper.annotation.Name;
 
+import javax.xml.transform.TransformerException;
 import java.util.List;
 import java.util.Map;
 
 @Name("json")
-public class JsonFunctionFactory implements DataScrapperFunctionFactory {
+public class JsonFunctionFactory extends ToStringFunctionFactory implements DataScrapperFunctionFactory {
 
     private final JsonProvider jsonProvider = Configuration
             .defaultConfiguration()
@@ -44,12 +44,12 @@ public class JsonFunctionFactory implements DataScrapperFunctionFactory {
                     }
                     process(path, context.withData(data), subscriber);
 
-                } else
-                    Streams.create(context.invoke("to-string")).
-                            when(Throwable.class, subscriber::onError).
-                            consume(toString -> {
-                                process(path, toString, subscriber);
-                            });
+                } else try {
+                    process(path, context.withData(JsonFunctionFactory.this.toString(data)), subscriber);
+                } catch (TransformerException e) {
+                    subscriber.onError(e);
+                    subscriber.onComplete();
+                }
             }
 
             @Override public void cancel() {}
