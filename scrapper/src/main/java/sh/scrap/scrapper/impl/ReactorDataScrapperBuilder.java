@@ -5,6 +5,7 @@ import reactor.Environment;
 import reactor.rx.Stream;
 import sh.scrap.scrapper.*;
 import sh.scrap.scrapper.annotation.Name;
+import sh.scrap.scrapper.annotation.Requires;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -30,7 +31,6 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
     @Override
     public Field field(String fieldName) {
         List<Step> steps = new ArrayList<>();
-        steps.add(new FunctionStep(createFunction("to-object")));
         fieldSteps.put(fieldName, steps);
         return new FieldBuilder(fieldName, steps);
     }
@@ -164,14 +164,19 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
         @Override
         public Field map(String functionName, Object... args) {
-            steps.add(new FunctionStep(createFunction(functionName, args)));
+            steps.add(new FunctionStep(createFunction("to-object")));
+            DataScrapperFunction function = createFunction(functionName, args);
+            if (function.getClass().isAnnotationPresent(Requires.class))
+                for (String requiredFunction : function.getClass().getAnnotation(Requires.class).value())
+                    steps.add(new FunctionStep(createFunction(requiredFunction)));
+            steps.add(new FunctionStep(function));
             return this;
         }
 
         @Override
         public Field forEach() {
-            map("to-iterable");
-            map("for-each");
+            steps.add(new FunctionStep(createFunction("to-iterable")));
+            steps.add(new FunctionStep(createFunction("for-each")));
             CompositeStep step = new CompositeStep(fieldName);
             steps.add(step);
             return new FieldBuilder(fieldName, step.children);
