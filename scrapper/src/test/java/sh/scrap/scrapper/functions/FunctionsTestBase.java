@@ -24,6 +24,7 @@ public class FunctionsTestBase extends DataScrapperBuilder {
 
                     @Override
                     public void onSubscribe(Subscription s) {
+                        s.request(1);
                     }
 
                     @Override

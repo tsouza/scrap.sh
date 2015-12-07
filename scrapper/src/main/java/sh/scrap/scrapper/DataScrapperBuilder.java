@@ -1,6 +1,7 @@
 package sh.scrap.scrapper;
 
 import org.reactivestreams.Publisher;
+import reactor.Environment;
 import reactor.rx.Stream;
 
 import javax.inject.Named;
@@ -11,9 +12,10 @@ import javax.script.ScriptException;
 import java.util.*;
 
 import static reactor.rx.Streams.create;
-import static reactor.rx.Streams.just;
 
 public class DataScrapperBuilder {
+
+    static { Environment.initialize(); }
 
     private static final Map<String, DataScrapperFunctionFactory> factories = lookupFactories();
 
@@ -23,15 +25,11 @@ public class DataScrapperBuilder {
             new HashMap<>();
 
     public DataScrapperBuilder map(String fieldName, String functionName, Object... args) {
-        return map(fieldName, "to-object").map(fieldName, functionOf(functionName, args));
-    }
-
-    public DataScrapperBuilder map(String fieldName, String functionNamespace, String functionName, Object... args) {
-        return map(fieldName, "to-object").map(fieldName, functionOf(functionNamespace, functionName, args));
+        return map(fieldName, functionOf("to-object")).map(fieldName, functionOf(functionName, args));
     }
 
     public DataScrapperBuilder forEach(String fieldName) {
-        return map(fieldName, "to-iterable").map(fieldName, "for-each");
+        return map(fieldName, functionOf("to-iterable")).map(fieldName, functionOf("for-each"));
     }
 
     public void addLibrarySource(String source) throws ScriptException {
@@ -45,17 +43,23 @@ public class DataScrapperBuilder {
                     Map<String, Object> output = new HashMap<>();
                     results.forEach(context -> output.put(context.fieldName(), context.data()));
                     return output;
-                }).next();
+                })
+                .dispatchOn(Environment.get())
+                .next();
     }
 
     private Publisher<DataScrapperExecutionContext> build(Map<String, Object> metadata, Object data) {
         return subscriber -> fieldFunctions.entrySet().stream()
-                .forEach(entry -> build(entry.getValue(),
-                        just(context(entry.getKey(), metadata, data)))
+                .forEach(entry -> build(entry.getValue(), context(entry.getKey(), metadata, data))
+                        .dispatchOn(Environment.get())
                         .consume(subscriber::onNext));
     }
 
-    private Stream<DataScrapperExecutionContext> build(List<DataScrapperFunction> functions, Stream<DataScrapperExecutionContext> stream) {
+    private Stream<DataScrapperExecutionContext> build(List<DataScrapperFunction> functions, DataScrapperExecutionContext context) {
+        Stream<DataScrapperExecutionContext> stream = create(subscriber -> {
+            subscriber.onNext(context);
+            subscriber.onComplete();
+        });
         for (DataScrapperFunction function : functions)
             stream = stream.map(function::process).merge();
         return stream;
@@ -72,9 +76,12 @@ public class DataScrapperBuilder {
     }
 
     private DataScrapperFunction functionOf(String name, Object... args) {
-        DataScrapperFunctionFactory factory = factories.get(name);
-        DataScrapperFunction function = factory.create(name, library, args);
-        return function;
+        String[] n = name.split(":");
+        if (n.length == 1)
+            return factories.get(n[0])
+                    .create(n[0], library, args);
+        return factories.get(n[0])
+                .create(n[1], library, args);
     }
 
     private DataScrapperFunction functionOf(String namespace, String name, Object... args) {

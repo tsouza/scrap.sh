@@ -5,6 +5,7 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.rx.Streams;
 import sh.scrap.scrapper.DataScrapperExecutionContext;
 import sh.scrap.scrapper.DataScrapperFunction;
@@ -26,27 +27,33 @@ public class JsonFunctionFactory implements DataScrapperFunctionFactory {
     @Override
     public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
         JsonPath path = JsonPath.compile((String) args[0]);
-        return context -> subscriber -> {
-            Object data = context.data();
+        return context -> subscriber -> subscriber.onSubscribe(new Subscription() {
+            @Override
+            public void request(long n) {
+                Object data = context.data();
 
-            if (data instanceof List || data instanceof Map)
-                process(path, context, subscriber);
+                if (data instanceof List || data instanceof Map)
+                    process(path, context, subscriber);
 
-            else if (data instanceof String) {
-                try {
-                    data = jsonProvider.parse((String) data);
-                } catch (Exception e) {
-                    subscriber.onError(e);
-                    return;
-                }
-                process(path, context, subscriber);
-            } else
-                Streams.create(context.invoke("to-string")).
-                        when(Throwable.class, subscriber::onError).
-                        consume(toString -> {
-                            process(path, toString, subscriber);
-                        });
-        };
+                else if (data instanceof String) {
+                    try {
+                        data = jsonProvider.parse((String) data);
+                    } catch (Exception e) {
+                        subscriber.onError(e);
+                        return;
+                    }
+                    process(path, context.withData(data), subscriber);
+
+                } else
+                    Streams.create(context.invoke("to-string")).
+                            when(Throwable.class, subscriber::onError).
+                            consume(toString -> {
+                                process(path, toString, subscriber);
+                            });
+            }
+
+            @Override public void cancel() {}
+        });
     }
 
     private void process(JsonPath path, DataScrapperExecutionContext context,
