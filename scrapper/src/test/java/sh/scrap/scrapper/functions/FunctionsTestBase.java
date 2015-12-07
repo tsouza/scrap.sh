@@ -5,9 +5,9 @@ import org.reactivestreams.Subscription;
 import org.w3c.dom.NodeList;
 import sh.scrap.scrapper.DataScrapperExecutionContext;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
+import sh.scrap.scrapper.annotation.Name;
 import sh.scrap.scrapper.impl.ReactorDataScrapperBuilder;
 
-import javax.inject.Named;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 
@@ -38,7 +38,7 @@ public class FunctionsTestBase extends ReactorDataScrapperBuilder {
     }
 
     protected String getName(DataScrapperFunctionFactory factory) {
-        return factory.getClass().getAnnotation(Named.class).value();
+        return factory.getClass().getAnnotation(Name.class).value();
     }
 
     protected NodeList nodeList() {
