@@ -52,7 +52,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         return subscriber -> fieldSteps.entrySet().stream()
                 .forEach(entry -> build(entry.getValue(), context(entry.getKey(), metadata, data))
                         .dispatchOn(Environment.get())
-                        .observeError(Throwable.class, (o, e) -> subscriber.onError(e))
+                        .when(Throwable.class, subscriber::onError)
                         .observeComplete(v -> subscriber.onComplete())
                         .consume(subscriber::onNext));
     }
@@ -236,7 +236,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         private Stream<DataScrapperExecutionContext> createSubStream(Stream<DataScrapperExecutionContext> stream) {
             return create(subscriber ->
                     stream.dispatchOn(Environment.get())
-                            .observeError(Throwable.class, (o, e) -> subscriber.onError(e))
+                            .when(Throwable.class, subscriber::onError)
                             .observeComplete(v -> subscriber.onComplete())
                             .consume(subscriber::onNext));
         }
