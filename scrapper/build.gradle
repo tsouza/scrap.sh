@@ -1,0 +1,24 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath group:'ch.raffael.gradlePlugins.antlr4', name:'gradle-antlr4-plugin', version:'1.0'
+    }
+}
+
+apply plugin:'ch.raffael.antlr4'
+
+dependencies {
+
+    compile "javax.inject:javax.inject:$injectVersion"
+
+    compile "org.antlr:antlr4-runtime:$antlr4Version"
+
+    compile "io.projectreactor:reactor-core:$reactorVersion",
+            "io.projectreactor:reactor-stream:$reactorVersion"
+
+    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+            "com.jayway.jsonpath:json-path:$jsonPathVersion"
+
+}
