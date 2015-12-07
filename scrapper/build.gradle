@@ -18,7 +18,7 @@ dependencies {
     compile "io.projectreactor:reactor-core:$reactorVersion",
             "io.projectreactor:reactor-stream:$reactorVersion"
 
-    compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion",
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
             "com.jayway.jsonpath:json-path:$jsonPathVersion"
 
 }

@@ -19,6 +19,17 @@ public class FunctionsTest extends DataScrapperBuilder {
     private int forEachCounter;
 
     @Test
+    public void testForEach_singleObject() {
+        forEachCounter = 0;
+        Object object = 1;
+        testFunction(new ForEachFunctionFactory(),
+                data -> forEachCounter++,
+                object);
+
+        assertThat(forEachCounter, equalTo(1));
+    }
+
+    @Test
     public void testForEach_list() {
         forEachCounter = 0;
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
