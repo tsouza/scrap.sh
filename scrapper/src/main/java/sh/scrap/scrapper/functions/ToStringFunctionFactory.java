@@ -1,6 +1,8 @@
 package sh.scrap.scrapper.functions;
 
+import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
+import org.w3c.dom.Text;
 import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
@@ -13,7 +15,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
-import java.util.Arrays;
 
 @Named("to-string")
 public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
@@ -22,7 +23,13 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
     public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
         return context -> subscriber -> {
             Object data = context.data();
-            if (data instanceof Node) {
+            if (data instanceof Text)
+                data = ((Text) data).getTextContent();
+            
+            else if (data instanceof Attr)
+                data = ((Attr) data).getValue();
+
+            else if (data instanceof Node) {
                 try {
                     data = nodeToString((Node) data);
                 } catch (Exception e) {
@@ -31,8 +38,7 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
                     return;
                 }
             }
-            else if (data.getClass().isArray())
-                data = Arrays.toString((Object[]) data);
+
             else if (!(data instanceof String))
                 data = data.toString();
 

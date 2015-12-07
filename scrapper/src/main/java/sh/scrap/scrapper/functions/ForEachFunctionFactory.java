@@ -1,5 +1,6 @@
 package sh.scrap.scrapper.functions;
 
+import org.w3c.dom.NodeList;
 import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
@@ -20,6 +21,10 @@ public class ForEachFunctionFactory implements DataScrapperFunctionFactory {
                 Object[] array = (Object[]) data;
                 for (int i = 0; i < array.length; i++)
                     subscription.onNext(context.withData(array[i]));
+            } else if (data instanceof NodeList) {
+                NodeList list = (NodeList) data;
+                for (int i = 0; i < list.getLength(); i++)
+                    subscription.onNext(context.withData(list.item(i)));
             }
             else
                 subscription.onNext(context.withData(data));
