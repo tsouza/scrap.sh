@@ -25,7 +25,7 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
             Object data = context.data();
             if (data instanceof Text)
                 data = ((Text) data).getTextContent();
-            
+
             else if (data instanceof Attr)
                 data = ((Attr) data).getValue();
 
