@@ -230,7 +230,8 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
         private Stream<DataScrapperExecutionContext> createSubStream(Stream<DataScrapperExecutionContext> stream) {
             return create(subscriber ->
-                    stream.observeError(Throwable.class, (o, e) -> subscriber.onError(t))
+                    stream.dispatchOn(Environment.get())
+                            .observeError(Throwable.class, (o, e) -> subscriber.onError(t))
                             .observeComplete(v -> subscriber.onComplete())
                             .consume(subscriber::onNext));
         }
