@@ -22,8 +22,8 @@ public class ForEachFunctionFactory implements DataScrapperFunctionFactory {
                         subscription.onNext(context.withData(entry));
                 else if (data instanceof Object[]) {
                     Object[] array = (Object[]) data;
-                    for (int i = 0; i < array.length; i++)
-                        subscription.onNext(context.withData(array[i]));
+                    for (Object anArray : array)
+                        subscription.onNext(context.withData(anArray));
                 } else if (data instanceof NodeList) {
                     NodeList list = (NodeList) data;
                     for (int i = 0; i < list.getLength(); i++)

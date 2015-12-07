@@ -3,15 +3,15 @@ package sh.scrap.scrapper.functions;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 import org.w3c.dom.NodeList;
-import sh.scrap.scrapper.DataScrapperBuilder;
 import sh.scrap.scrapper.DataScrapperExecutionContext;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
+import sh.scrap.scrapper.impl.ReactorDataScrapperBuilder;
 
 import javax.inject.Named;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
 
-public class FunctionsTestBase extends DataScrapperBuilder {
+public class FunctionsTestBase extends ReactorDataScrapperBuilder {
 
     protected <O> void testFunction(DataScrapperFunctionFactory factory, Verifier<O> verifier, Object input, Object... args) {
         factory.create(getName(factory), null, args).
