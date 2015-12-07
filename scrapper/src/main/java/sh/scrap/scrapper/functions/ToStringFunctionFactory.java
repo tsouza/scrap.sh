@@ -7,8 +7,8 @@ import org.w3c.dom.Text;
 import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
+import sh.scrap.scrapper.annotation.Name;
 
-import javax.inject.Named;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -17,7 +17,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
 
-@Named("to-string")
+@Name("to-string")
 public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
 
     @Override

@@ -4,8 +4,8 @@ import org.reactivestreams.Publisher;
 import reactor.Environment;
 import reactor.rx.Stream;
 import sh.scrap.scrapper.*;
+import sh.scrap.scrapper.annotation.Name;
 
-import javax.inject.Named;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -74,7 +74,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         Map<String, DataScrapperFunctionFactory> factories = new HashMap<>();
 
         for (DataScrapperFunctionFactory factory : loader)
-            factories.put(factory.getClass().getAnnotation(Named.class).value(),
+            factories.put(factory.getClass().getAnnotation(Name.class).value(),
                     new NullWrapper(factory));
 
         return factories;

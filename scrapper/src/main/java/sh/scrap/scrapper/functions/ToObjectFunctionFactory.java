@@ -5,11 +5,11 @@ import org.w3c.dom.NodeList;
 import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
+import sh.scrap.scrapper.annotation.Name;
 
-import javax.inject.Named;
 import java.util.Iterator;
 
-@Named("to-object")
+@Name("to-object")
 public class ToObjectFunctionFactory implements DataScrapperFunctionFactory {
 
     @Override

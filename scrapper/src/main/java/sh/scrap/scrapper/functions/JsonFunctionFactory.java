@@ -11,12 +11,12 @@ import sh.scrap.scrapper.DataScrapperExecutionContext;
 import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
+import sh.scrap.scrapper.annotation.Name;
 
-import javax.inject.Named;
 import java.util.List;
 import java.util.Map;
 
-@Named("json")
+@Name("json")
 public class JsonFunctionFactory implements DataScrapperFunctionFactory {
 
     private final JsonProvider jsonProvider = Configuration
