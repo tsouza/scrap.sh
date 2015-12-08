@@ -1,8 +1,13 @@
 package sh.scrap.scrapper;
 
+import javax.script.ScriptException;
+
 public interface DataScrapperBuilder {
 
     Field field(String fieldName);
+
+    DataScrapperBuilder addLibrarySource(String source)
+            throws ScriptException;
 
     DataScrapper build();
 

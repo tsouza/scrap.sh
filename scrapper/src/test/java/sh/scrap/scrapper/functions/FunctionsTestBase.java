@@ -13,8 +13,9 @@ import java.io.ByteArrayInputStream;
 
 public class FunctionsTestBase extends ReactorDataScrapperBuilder {
 
+    @SuppressWarnings("unchecked")
     protected <O> void testFunction(DataScrapperFunctionFactory factory, Verifier<O> verifier, Object input, Object... args) {
-        factory.create(getName(factory), null, args).
+        factory.create(getName(factory), library, args).
                 process(context(null, null, input)).
                 subscribe(new Subscriber<DataScrapperExecutionContext>() {
                     @Override
@@ -29,6 +30,9 @@ public class FunctionsTestBase extends ReactorDataScrapperBuilder {
 
                     @Override
                     public void onError(Throwable t) {
+                        if (t instanceof RuntimeException)
+                            throw (RuntimeException) t;
+                        else throw new RuntimeException(t);
                     }
 
                     @Override

@@ -10,6 +10,7 @@ import sh.scrap.scrapper.annotation.Requires;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     private static final Map<String, DataScrapperFunctionFactory> factories = lookupFactories();
 
-    private final JSLibrary library;
+    protected final JSLibrary library;
     private final Map<String, List<Step>> fieldSteps = new HashMap<>();
 
     public ReactorDataScrapperBuilder() {
@@ -33,6 +34,12 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         List<Step> steps = new ArrayList<>();
         fieldSteps.put(fieldName, steps);
         return new FieldBuilder(fieldName, steps);
+    }
+
+    @Override
+    public DataScrapperBuilder addLibrarySource(String source) throws ScriptException {
+        library.engine.eval(source);
+        return this;
     }
 
     @Override
@@ -86,9 +93,13 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
                 getEngineByName("JavaScript");
 
         @Override
-        public Object invoke(String functionName, Object data) throws Exception {
+        public Object invoke(String functionName, Object data, Object... args) throws Exception {
             Invocable inv = (Invocable) engine;
-            return inv.invokeFunction(functionName, data);
+            List<Object> newArgs = new ArrayList<>(args.length + 1);
+            newArgs.add(data);
+            if (args.length > 0)
+                newArgs.addAll(Arrays.asList(args));
+            return inv.invokeFunction(functionName, newArgs.toArray());
         }
     }
 
