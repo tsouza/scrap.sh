@@ -11,4 +11,10 @@ categories : string
     -> xpath "//body/script[1]/text()"
     -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
     -> json "$.pageCategory[0]"
-    -> array string:split ",";
+    -> array string:split ","
+        -> string:upperCase;
+
+price : number
+    -> xpath "//body/script[1]/text()"
+    -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
+    -> json "$.price";

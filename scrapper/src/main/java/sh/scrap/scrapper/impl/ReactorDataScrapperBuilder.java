@@ -292,7 +292,8 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
         @Override
         public void onBuild(Deque<Step> steps) {
-            children.getLast().onBuild(children);
+            if (!children.isEmpty())
+                children.getLast().onBuild(children);
         }
 
         private Stream<DataScrapperExecutionContext> createSubStream(Stream<DataScrapperExecutionContext> stream) {

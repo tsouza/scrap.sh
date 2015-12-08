@@ -14,16 +14,19 @@ public class ToNumberFunctionFactory implements DataScrapperFunctionFactory {
         return context -> subscription -> subscription.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
-                String data = context.data().toString().trim().toLowerCase();
-                data = data.matches("^-?[0-9\\.]+$") ? "1" : data;
-                switch (data) {
-                    case "0": case "false": case "no":
-                        subscription.onNext(context.withData(false));
-                        break;
-                    default:
-                        subscription.onNext(context.withData(true));
+                String data = context.data().toString();
+                try {
+                    subscription.onNext(context.withData(Integer.parseInt(data)));
+                    subscription.onComplete();
+                } catch (NumberFormatException e) {
+                    try {
+                        subscription.onNext(context.withData(Double.parseDouble(data)));
+                        subscription.onComplete();
+                    } catch (NumberFormatException ex) {
+                        subscription.onError(e);
+                        subscription.onComplete();
+                    }
                 }
-                subscription.onComplete();
             }
             @Override public void cancel() {}
         });

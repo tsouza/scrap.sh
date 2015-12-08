@@ -49,11 +49,6 @@ public class DataScrapperBuilderFactory {
         List<Object> arguments = new ArrayList<>();
 
         @Override
-        public void enterArgumentList(ScrapParser.ArgumentListContext ctx) {
-            arguments.clear();
-        }
-
-        @Override
         public void enterFunctionName(ScrapParser.FunctionNameContext ctx) {
             functionName = ctx.getText();
         }
@@ -99,8 +94,13 @@ public class DataScrapperBuilderFactory {
 
         @Override
         public void exitIterationExpression(ScrapParser.IterationExpressionContext ctx) {
-            currentField = currentField.forEach().
-                    map(functionName, arguments.toArray());
+            currentField = currentField.map(functionName, arguments.toArray())
+                    .forEach();
+        }
+
+        @Override
+        public void exitExpression(@NotNull ScrapParser.ExpressionContext ctx) {
+            arguments.clear();
         }
     }
 }

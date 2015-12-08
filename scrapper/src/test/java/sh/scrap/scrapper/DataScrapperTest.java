@@ -59,13 +59,19 @@ public class DataScrapperTest {
                 .scrap(html)
                 .await();
 
-        System.out.println(result);
-
         assertThat(result.get("title"),
                 equalTo("Porta Retrato Venus Vitrix Metal Multicolorido"));
 
         assertThat(result.get("sku"),
                 equalTo("VE087HDU80GNF"));
+
+        assertThat(result.get("categories"),
+                equalTo(Arrays.asList("UNISSEX", "CASA", "CASA-FEMININA",
+                        "DECORACAO", "OBJETOS-DECORATIVOS-DECORACAO",
+                        "VENUS VICTRIX")));
+
+        assertThat(result.get("price"),
+                equalTo(114.99));
     }
 
     private String loadResource(String name) throws IOException {
