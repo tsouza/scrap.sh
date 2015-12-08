@@ -2,6 +2,8 @@
 package sh.scrap.scrapper.parser;
 
 import java.util.Collection;
+import java.util.Arrays;
+import static sh.scrap.scrapper.DataScrapperBuilder.FieldType;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
@@ -32,6 +34,17 @@ public interface ScrapListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitExpression(@NotNull ScrapParser.ExpressionContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#singleExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterSingleExpression(@NotNull ScrapParser.SingleExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#singleExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitSingleExpression(@NotNull ScrapParser.SingleExpressionContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link ScrapParser#fieldName}.
@@ -122,6 +135,17 @@ public interface ScrapListener extends ParseTreeListener {
 	void exitIdentifierName(@NotNull ScrapParser.IdentifierNameContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link ScrapParser#typeCast}.
+	 * @param ctx the parse tree
+	 */
+	void enterTypeCast(@NotNull ScrapParser.TypeCastContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#typeCast}.
+	 * @param ctx the parse tree
+	 */
+	void exitTypeCast(@NotNull ScrapParser.TypeCastContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link ScrapParser#fieldExpression}.
 	 * @param ctx the parse tree
 	 */
@@ -133,15 +157,15 @@ public interface ScrapListener extends ParseTreeListener {
 	void exitFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link ScrapParser#singleFieldExpression}.
+	 * Enter a parse tree produced by {@link ScrapParser#iterationExpression}.
 	 * @param ctx the parse tree
 	 */
-	void enterSingleFieldExpression(@NotNull ScrapParser.SingleFieldExpressionContext ctx);
+	void enterIterationExpression(@NotNull ScrapParser.IterationExpressionContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ScrapParser#singleFieldExpression}.
+	 * Exit a parse tree produced by {@link ScrapParser#iterationExpression}.
 	 * @param ctx the parse tree
 	 */
-	void exitSingleFieldExpression(@NotNull ScrapParser.SingleFieldExpressionContext ctx);
+	void exitIterationExpression(@NotNull ScrapParser.IterationExpressionContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link ScrapParser#arguments}.
@@ -164,15 +188,4 @@ public interface ScrapListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link ScrapParser#iterationFieldExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterIterationFieldExpression(@NotNull ScrapParser.IterationFieldExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ScrapParser#iterationFieldExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitIterationFieldExpression(@NotNull ScrapParser.IterationFieldExpressionContext ctx);
 }

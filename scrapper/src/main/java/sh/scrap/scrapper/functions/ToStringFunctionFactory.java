@@ -8,6 +8,7 @@ import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
 import sh.scrap.scrapper.annotation.Name;
+import sh.scrap.scrapper.annotation.Requires;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;

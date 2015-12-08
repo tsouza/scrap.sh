@@ -2,6 +2,8 @@
 package sh.scrap.scrapper.parser;
 
 import java.util.Collection;
+import java.util.Arrays;
+import static sh.scrap.scrapper.DataScrapperBuilder.FieldType;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -30,6 +32,14 @@ public class ScrapBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitExpression(@NotNull ScrapParser.ExpressionContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitSingleExpression(@NotNull ScrapParser.SingleExpressionContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -101,6 +111,14 @@ public class ScrapBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitTypeCast(@NotNull ScrapParser.TypeCastContext ctx) { return visitChildren(ctx); }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx) { return visitChildren(ctx); }
 
 	/**
@@ -109,7 +127,7 @@ public class ScrapBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitSingleFieldExpression(@NotNull ScrapParser.SingleFieldExpressionContext ctx) { return visitChildren(ctx); }
+	@Override public T visitIterationExpression(@NotNull ScrapParser.IterationExpressionContext ctx) { return visitChildren(ctx); }
 
 	/**
 	 * {@inheritDoc}
@@ -126,12 +144,4 @@ public class ScrapBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx) { return visitChildren(ctx); }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitIterationFieldExpression(@NotNull ScrapParser.IterationFieldExpressionContext ctx) { return visitChildren(ctx); }
 }

@@ -2,6 +2,8 @@ grammar Scrap;
 
 @parser::header {
 import java.util.Collection;
+import java.util.Arrays;
+import static sh.scrap.scrapper.DataScrapperBuilder.FieldType;
 }
 
 @parser::members {
@@ -16,6 +18,15 @@ import java.util.Collection;
         return functionNameValidator.isValidFunctionName(text);
     }
 
+    private boolean isValidTypeCast(String text) {
+        try {
+            FieldType.valueOf(text.toUpperCase());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static interface FunctionNameValidator {
         boolean isValidFunctionName(String name);
     }
@@ -26,25 +37,26 @@ scrapOutput
  ;
 
 fieldExpression
- : singleFieldExpression
- | iterationFieldExpression
- ;
-
-iterationFieldExpression
- : 'foreach' singleFieldExpression
- ;
-
-singleFieldExpression
- : fieldName ':' expressions ';'
+ : fieldName ':' (typeCast '->')? expressions ';'
  ;
 
 expressions
- : expression ( '|' expression )*
+ : expression ( '->' expression )*
  ;
 
 expression
+ : singleExpression
+ | iterationExpression
+ ;
+
+singleExpression
  : functionName arguments
  ;
+
+iterationExpression
+  : 'array' functionName arguments
+  ;
+
 
 arguments
  : argumentList?
@@ -84,6 +96,10 @@ identifierName
 reservedWord
  : NullLiteral
  | BooleanLiteral
+ ;
+
+typeCast
+ : identifierName {isValidTypeCast($identifierName.text)}?
  ;
 
 functionName
@@ -226,6 +242,7 @@ fragment IdentifierStart
 
 fragment IdentifierPart
  : IdentifierStart
+ | ':'
  | UnicodeCombiningMark
  | UnicodeDigit
  | UnicodeConnectorPunctuation

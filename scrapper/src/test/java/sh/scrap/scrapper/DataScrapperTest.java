@@ -26,7 +26,7 @@ public class DataScrapperTest {
                 .scrap(Collections.emptyMap(), "{ \"test\": 1 }")
                 .await();
 
-        assertThat(result.get("fieldTest"), equalTo(1));
+        assertThat(result.get("fieldTest"), equalTo("1"));
     }
 
     @Test
@@ -42,7 +42,7 @@ public class DataScrapperTest {
                 .scrap(Collections.emptyMap(), "{ \"test\": [ { \"a\": 10 }, { \"a\": 20 }, { \"a\": 30 } ] }")
                 .await();
 
-        assertThat(result.get("fieldTest"), equalTo(Arrays.asList(10, 20, 30)));
+        assertThat(result.get("fieldTest"), equalTo(Arrays.asList("10", "20", "30")));
     }
 
     @Test
@@ -60,6 +60,12 @@ public class DataScrapperTest {
                 .await();
 
         System.out.println(result);
+
+        assertThat(result.get("title"),
+                equalTo("Porta Retrato Venus Vitrix Metal Multicolorido"));
+
+        assertThat(result.get("sku"),
+                equalTo("VE087HDU80GNF"));
     }
 
     private String loadResource(String name) throws IOException {

@@ -23,7 +23,8 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
     private static final Map<String, DataScrapperFunctionFactory> factories = lookupFactories();
 
     protected final JSLibrary library;
-    private final Map<String, List<Step>> fieldSteps = new HashMap<>();
+    private final Map<String, Deque<Step>> fieldSteps = new HashMap<>();
+    private final Map<String, FieldType> fieldTypes = new HashMap<>();
 
     public ReactorDataScrapperBuilder() {
         library = new JSLibrary();
@@ -31,7 +32,8 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     @Override
     public Field field(String fieldName) {
-        List<Step> steps = new ArrayList<>();
+        Deque<Step> steps = fieldSteps.containsKey(fieldName) ?
+                fieldSteps.get(fieldName) : new LinkedList<>();
         fieldSteps.put(fieldName, steps);
         return new FieldBuilder(fieldName, steps);
     }
@@ -44,6 +46,10 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     @Override
     public DataScrapper build() {
+
+        for (Deque<Step> steps : fieldSteps.values())
+            steps.getLast().onBuild(steps);
+
         return (metadata, data) -> create(build(metadata, data))
                 .buffer(fieldSteps.size())
                 .map(results -> {
@@ -63,7 +69,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
                         .consume(subscriber::onNext));
     }
 
-    private Stream<DataScrapperExecutionContext> build(List<Step> steps, DataScrapperExecutionContext context) {
+    private Stream<DataScrapperExecutionContext> build(Deque<Step> steps, DataScrapperExecutionContext context) {
         Stream<DataScrapperExecutionContext> stream = create(subscriber -> {
             subscriber.onNext(context);
             subscriber.onComplete();
@@ -120,6 +126,11 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         }
 
         @Override
+        public boolean isValidName(String name) {
+            return wrapped.isValidName(name);
+        }
+
+        @Override
         public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
             DataScrapperFunction function = wrapped.create(name, library, args);
             return (context) -> context.data() == null ?
@@ -171,33 +182,46 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
                 .create(n[1], library, args);
     }
 
+    private DataScrapperFunctionFactory getFactory(String name) {
+        return ((NullWrapper) factories.get(name.split(":")[0])).wrapped;
+    }
+
     class FieldBuilder implements Field {
 
         private final String fieldName;
-        private final List<Step> steps;
+        private final Deque<Step> steps;
 
-        FieldBuilder(String fieldName, List<Step> steps) {
+        FieldBuilder(String fieldName, Deque<Step> steps) {
             this.fieldName = fieldName;
             this.steps = steps;
+            if (!fieldTypes.containsKey(fieldName))
+                castTo(FieldType.STRING);
+        }
+
+        @Override
+        public Field castTo(FieldType type) {
+            fieldTypes.put(fieldName, type);
+            return this;
         }
 
         @Override
         public Field map(String functionName, Object... args) {
-            steps.add(new FunctionStep(createFunction("to-object")));
+            steps.addLast(new FunctionStep(fieldName, createFunction("to-object")));
             DataScrapperFunction function = createFunction(functionName, args);
-            if (function.getClass().isAnnotationPresent(Requires.class))
-                for (String requiredFunction : function.getClass().getAnnotation(Requires.class).value())
-                    steps.add(new FunctionStep(createFunction(requiredFunction)));
-            steps.add(new FunctionStep(function));
+            DataScrapperFunctionFactory factory = getFactory(functionName);
+            if (factory.getClass().isAnnotationPresent(Requires.class))
+                for (String requiredFunction : factory.getClass().getAnnotation(Requires.class).value())
+                    map(requiredFunction);
+            steps.addLast(new FunctionStep(fieldName, function));
             return this;
         }
 
         @Override
         public Field forEach() {
-            steps.add(new FunctionStep(createFunction("to-iterable")));
-            steps.add(new FunctionStep(createFunction("for-each")));
+            steps.addLast(new FunctionStep(fieldName, createFunction("to-iterable")));
+            steps.addLast(new FunctionStep(fieldName, createFunction("for-each")));
             CompositeStep step = new CompositeStep(fieldName);
-            steps.add(step);
+            steps.addLast(step);
             return new FieldBuilder(fieldName, step.children);
         }
 
@@ -210,13 +234,16 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     interface Step {
         Stream<DataScrapperExecutionContext> build(Stream<DataScrapperExecutionContext> stream);
+        void onBuild(Deque<Step> steps);
     }
 
     class FunctionStep implements Step {
 
+        final String fieldName;
         final DataScrapperFunction function;
 
-        FunctionStep(DataScrapperFunction function) {
+        FunctionStep(String fieldName, DataScrapperFunction function) {
+            this.fieldName = fieldName;
             this.function = function;
         }
 
@@ -224,12 +251,23 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         public Stream<DataScrapperExecutionContext> build(Stream<DataScrapperExecutionContext> stream) {
             return stream.map(function::process).merge();
         }
+
+        @Override
+        public void onBuild(Deque<Step> steps) {
+            steps.addLast(new FunctionStep(fieldName, createFunction("to-object")));
+            steps.addLast(new FunctionStep(fieldName, createFunction("to-" + typeCast())));
+        }
+
+        private String typeCast() {
+            return fieldTypes.get(fieldName).name().toLowerCase();
+        }
+
     }
 
     class CompositeStep implements Step {
 
         final String fieldName;
-        final List<Step> children = new ArrayList<>();
+        final Deque<Step> children = new LinkedList<>();
 
         CompositeStep(String fieldName) {
             this.fieldName = fieldName;
@@ -250,6 +288,11 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
                         .collect(Collectors.toList());
                 return results.get(0).withData(data);
             });
+        }
+
+        @Override
+        public void onBuild(Deque<Step> steps) {
+            children.getLast().onBuild(children);
         }
 
         private Stream<DataScrapperExecutionContext> createSubStream(Stream<DataScrapperExecutionContext> stream) {

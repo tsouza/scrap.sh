@@ -2,6 +2,8 @@
 package sh.scrap.scrapper.parser;
 
 import java.util.Collection;
+import java.util.Arrays;
+import static sh.scrap.scrapper.DataScrapperBuilder.FieldType;
 
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
@@ -27,6 +29,13 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitExpression(@NotNull ScrapParser.ExpressionContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#singleExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSingleExpression(@NotNull ScrapParser.SingleExpressionContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link ScrapParser#fieldName}.
@@ -85,6 +94,13 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	T visitIdentifierName(@NotNull ScrapParser.IdentifierNameContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link ScrapParser#typeCast}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeCast(@NotNull ScrapParser.TypeCastContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link ScrapParser#fieldExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -92,11 +108,11 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	T visitFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link ScrapParser#singleFieldExpression}.
+	 * Visit a parse tree produced by {@link ScrapParser#iterationExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitSingleFieldExpression(@NotNull ScrapParser.SingleFieldExpressionContext ctx);
+	T visitIterationExpression(@NotNull ScrapParser.IterationExpressionContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link ScrapParser#arguments}.
@@ -111,11 +127,4 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link ScrapParser#iterationFieldExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIterationFieldExpression(@NotNull ScrapParser.IterationFieldExpressionContext ctx);
 }

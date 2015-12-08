@@ -49,22 +49,29 @@ public class DataScrapperBuilderFactory {
         List<Object> arguments = new ArrayList<>();
 
         @Override
-        public void enterArgumentList(@NotNull ScrapParser.ArgumentListContext ctx) {
+        public void enterArgumentList(ScrapParser.ArgumentListContext ctx) {
             arguments.clear();
         }
 
         @Override
-        public void enterFunctionName(@NotNull ScrapParser.FunctionNameContext ctx) {
+        public void enterFunctionName(ScrapParser.FunctionNameContext ctx) {
             functionName = ctx.getText();
         }
 
         @Override
-        public void enterFieldName(@NotNull ScrapParser.FieldNameContext ctx) {
+        public void enterFieldName(ScrapParser.FieldNameContext ctx) {
             currentField = builder.field(ctx.getText());
         }
 
         @Override
-        public void enterArgument(@NotNull ScrapParser.ArgumentContext ctx) {
+        public void enterTypeCast(ScrapParser.TypeCastContext ctx) {
+            currentField = currentField
+                    .castTo(DataScrapperBuilder.FieldType
+                            .valueOf(ctx.getText().toUpperCase()));
+        }
+
+        @Override
+        public void enterArgument(ScrapParser.ArgumentContext ctx) {
             String text = ctx.getText();
             if (text.startsWith("'") || text.startsWith("\"")) {
                 text = text.substring(1, text.length() - 1);
@@ -86,14 +93,14 @@ public class DataScrapperBuilderFactory {
         }
 
         @Override
-        public void exitIterationFieldExpression(@NotNull ScrapParser.IterationFieldExpressionContext ctx) {
-            currentField = currentField.forEach().
-                    map(functionName, arguments.toArray());
+        public void exitSingleExpression(ScrapParser.SingleExpressionContext ctx) {
+            currentField = currentField.map(functionName, arguments.toArray());
         }
 
         @Override
-        public void exitSingleFieldExpression(@NotNull ScrapParser.SingleFieldExpressionContext ctx) {
-            currentField = currentField.map(functionName, arguments.toArray());
+        public void exitIterationExpression(ScrapParser.IterationExpressionContext ctx) {
+            currentField = currentField.forEach().
+                    map(functionName, arguments.toArray());
         }
     }
 }

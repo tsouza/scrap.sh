@@ -1,5 +1,6 @@
 package sh.scrap.scrapper.functions;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
@@ -22,7 +23,7 @@ public class JsonFunctionFactory extends ToStringFunctionFactory implements Data
 
     private final JsonProvider jsonProvider = Configuration
             .defaultConfiguration()
-            .jsonProvider(new JacksonJsonProvider())
+            .jsonProvider(createProvider())
             .jsonProvider();
 
     @Override
@@ -71,5 +72,13 @@ public class JsonFunctionFactory extends ToStringFunctionFactory implements Data
         }
         subscriber.onNext(context.withData(data));
         subscriber.onComplete();
+    }
+
+    private JsonProvider createProvider() {
+        JacksonJsonProvider provider = new JacksonJsonProvider();
+        provider.getObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        provider.getObjectMapper().configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
+        provider.getObjectMapper().configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        return provider;
     }
 }

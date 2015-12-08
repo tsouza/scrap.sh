@@ -1,2 +1,14 @@
-title
-    : xpath "//title";
+title : string
+    -> xpath "//title/text()"
+    -> regexp "^(.+)? - Compre Agora | Dafiti Brasil$";
+
+sku : string
+    -> xpath "//body/script[1]/text()"
+    -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
+    -> json "$.sku";
+
+categories : string
+    -> xpath "//body/script[1]/text()"
+    -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
+    -> json "$.pageCategory[0]"
+    -> array string:split ",";

@@ -2,6 +2,8 @@
 package sh.scrap.scrapper.parser;
 
 import java.util.Collection;
+import java.util.Arrays;
+import static sh.scrap.scrapper.DataScrapperBuilder.FieldType;
 
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -40,6 +42,19 @@ public class ScrapBaseListener implements ScrapListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitExpression(@NotNull ScrapParser.ExpressionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterSingleExpression(@NotNull ScrapParser.SingleExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitSingleExpression(@NotNull ScrapParser.SingleExpressionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -150,6 +165,19 @@ public class ScrapBaseListener implements ScrapListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterTypeCast(@NotNull ScrapParser.TypeCastContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitTypeCast(@NotNull ScrapParser.TypeCastContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -163,13 +191,13 @@ public class ScrapBaseListener implements ScrapListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterSingleFieldExpression(@NotNull ScrapParser.SingleFieldExpressionContext ctx) { }
+	@Override public void enterIterationExpression(@NotNull ScrapParser.IterationExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitSingleFieldExpression(@NotNull ScrapParser.SingleFieldExpressionContext ctx) { }
+	@Override public void exitIterationExpression(@NotNull ScrapParser.IterationExpressionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -196,19 +224,6 @@ public class ScrapBaseListener implements ScrapListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIterationFieldExpression(@NotNull ScrapParser.IterationFieldExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIterationFieldExpression(@NotNull ScrapParser.IterationFieldExpressionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -12,8 +12,15 @@ public interface DataScrapperBuilder {
     DataScrapper build();
 
     interface Field {
+        Field castTo(FieldType type);
         Field map(String functionName, Object... args);
         Field forEach();
         DataScrapper build();
+    }
+
+    enum FieldType {
+        STRING,
+        NUMBER,
+        BOOLEAN
     }
 }
