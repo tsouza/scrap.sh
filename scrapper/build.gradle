@@ -20,7 +20,8 @@ dependencies {
             "com.jayway.jsonpath:json-path:$jsonPathVersion"
 
     compile "net.sf.saxon:Saxon-HE:$saxonVersion",
-            "nu.validator.htmlparser:htmlparser:$htmlParserVersion"
+            "nu.validator.htmlparser:htmlparser:$htmlParserVersion",
+            "se.fishtank:css-selectors:$cssSelectorVersion"
 
     testCompile "org.slf4j:slf4j-simple:$slf4jVersion"
 
