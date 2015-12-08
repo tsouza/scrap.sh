@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static reactor.rx.Streams.create;
 
-public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
+public class ReactorDataScrapperBuilder extends ScriptedDataScrapperBuilder implements DataScrapperBuilder {
 
     static { Environment.initialize(); }
 
@@ -60,7 +60,6 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
                 .forEach(entry -> build(entry.getValue(), context(entry.getKey(), metadata, data))
                         .dispatchOn(Environment.get())
                         .when(Throwable.class, subscriber::onError)
-                        .observeComplete(v -> subscriber.onComplete())
                         .consume(subscriber::onNext));
     }
 
@@ -85,6 +84,16 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
                     new NullWrapper(factory));
 
         return factories;
+    }
+
+    @Override
+    protected boolean isValidFunctionName(String text) {
+        String[] p = text.split(":");
+        boolean exists = factories.containsKey(p[0]);
+        if (p.length == 1 || !exists)
+            return exists;
+
+        return factories.get(p[0]).isValidName(p[1]);
     }
 
     private static class JSLibrary implements DataScrapperFunctionLibrary {
