@@ -18,7 +18,7 @@ public class RegexpFunctionFactory implements DataScrapperFunctionFactory {
     @Override
     public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
         Pattern pattern = Pattern.compile((String) args[0],
-                Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         String joiner = args.length > 1 ? (String) args[1] : "";
         return context -> subscriber -> subscriber.onSubscribe(new Subscription() {
             @Override

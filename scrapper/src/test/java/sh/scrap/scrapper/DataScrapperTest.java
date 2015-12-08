@@ -1,8 +1,11 @@
 package sh.scrap.scrapper;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import sh.scrap.scrapper.impl.ReactorDataScrapperBuilder;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -27,7 +30,7 @@ public class DataScrapperTest {
     }
 
     @Test
-    public void testScrapper_json_forEach() throws InterruptedException{
+    public void testScrapper_json_forEach() throws InterruptedException {
         DataScrapper scrapper = new ReactorDataScrapperBuilder()
                 .field("fieldTest")
                     .map("json", "$.test")
@@ -40,5 +43,28 @@ public class DataScrapperTest {
                 .await();
 
         assertThat(result.get("fieldTest"), equalTo(Arrays.asList(10, 20, 30)));
+    }
+
+    @Test
+    public void testScrapper_fullScript() throws InterruptedException, IOException {
+        String scraplet = loadResource("/test.scraplet");
+        String html = loadResource("/test.html");
+
+        DataScrapper scrapper = DataScrapperBuilderFactory
+                .fromScript(scraplet)
+                .createBuilder()
+                .build();
+
+        Map<String, Object> result = scrapper
+                .scrap(html)
+                .await();
+
+        System.out.println(result);
+    }
+
+    private String loadResource(String name) throws IOException {
+        try (InputStream res = DataScrapperTest.class.getResourceAsStream(name)) {
+            return IOUtils.toString(res);
+        }
     }
 }

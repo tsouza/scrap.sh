@@ -2,6 +2,7 @@ package sh.scrap.scrapper.functions;
 
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 import com.jayway.jsonpath.spi.json.JacksonJsonProvider;
 import com.jayway.jsonpath.spi.json.JsonProvider;
 import org.reactivestreams.Subscriber;
@@ -61,6 +62,8 @@ public class JsonFunctionFactory extends ToStringFunctionFactory implements Data
         Object data = context.data();
         try {
             data = path.read(data);
+        } catch (PathNotFoundException e) {
+            data = null;
         } catch (Exception e) {
             subscriber.onError(e);
             subscriber.onComplete();

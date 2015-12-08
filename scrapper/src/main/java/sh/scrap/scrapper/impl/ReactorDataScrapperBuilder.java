@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import static reactor.rx.Streams.create;
 
-public class ReactorDataScrapperBuilder extends ScriptedDataScrapperBuilder implements DataScrapperBuilder {
+public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     static { Environment.initialize(); }
 
@@ -86,8 +86,7 @@ public class ReactorDataScrapperBuilder extends ScriptedDataScrapperBuilder impl
         return factories;
     }
 
-    @Override
-    protected boolean isValidFunctionName(String text) {
+    public boolean isValidFunctionName(String text) {
         String[] p = text.split(":");
         boolean exists = factories.containsKey(p[0]);
         if (p.length == 1 || !exists)

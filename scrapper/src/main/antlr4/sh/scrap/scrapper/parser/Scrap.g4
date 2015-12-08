@@ -1,11 +1,65 @@
 grammar Scrap;
 
+@parser::header {
+import java.util.Collection;
+}
+
+@parser::members {
+    private ScrapParser.FunctionNameValidator functionNameValidator;
+
+    public ScrapParser(TokenStream input, FunctionNameValidator functionNameValidator) {
+        this(input);
+        this.functionNameValidator = functionNameValidator;
+    }
+
+    private boolean isValidFunction(String text) {
+        return functionNameValidator.isValidFunctionName(text);
+    }
+
+    public static interface FunctionNameValidator {
+        boolean isValidFunctionName(String name);
+    }
+}
+
+scrapOutput
+ : fieldExpression fieldExpression*
+ ;
+
+fieldExpression
+ : singleFieldExpression
+ | iterationFieldExpression
+ ;
+
+iterationFieldExpression
+ : 'foreach' singleFieldExpression
+ ;
+
+singleFieldExpression
+ : fieldName ':' expressions ';'
+ ;
+
+expressions
+ : expression ( '|' expression )*
+ ;
+
+expression
+ : functionName arguments
+ ;
+
 arguments
  : argumentList?
  ;
 
 argumentList
- : literal ( ',' literal )*
+ : argument ( ',' argument )*
+ ;
+
+argument
+ : literal
+ ;
+
+fieldName
+ : identifierName
  ;
 
 literal
@@ -30,6 +84,10 @@ identifierName
 reservedWord
  : NullLiteral
  | BooleanLiteral
+ ;
+
+functionName
+ : identifierName {isValidFunction($identifierName.text)}?
  ;
 
 LineTerminator

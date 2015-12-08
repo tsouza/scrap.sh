@@ -3,11 +3,32 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath group:'ch.raffael.gradlePlugins.antlr4', name:'gradle-antlr4-plugin', version:'1.0'
+        classpath "me.champeau.gradle:antlr4-gradle-plugin:0.1"
+        classpath "org.antlr:antlr4-runtime:$antlr4Version"
     }
 }
 
-apply plugin:'ch.raffael.antlr4'
+apply plugin: 'me.champeau.gradle.antlr4'
+
+antlr4 {
+    output file("src/main/antlr4/sh/scrap/scrapper/parser")
+    extraArgs=['-package', 'sh.scrap.scrapper.parser']
+}
+
+clean {
+    delete file("src/main/antlr4")
+}
+
+compileJava {
+    dependsOn antlr4
+    options.compilerArgs << '-proc:none'
+}
+
+configurations {
+    compile.extendsFrom antlr4
+}
+
+sourceSets.main.java.srcDirs += file("src/main/antlr4")
 
 dependencies {
 
@@ -23,6 +44,8 @@ dependencies {
             "nu.validator.htmlparser:htmlparser:$htmlParserVersion",
             "se.fishtank:css-selectors:$cssSelectorVersion"
 
-    testCompile "org.slf4j:slf4j-simple:$slf4jVersion"
+    compile "org.apache.commons:commons-lang3:$commonsLangVersion"
 
+    testCompile "org.slf4j:slf4j-simple:$slf4jVersion"
+    testCompile "commons-io:commons-io:$commonsIOVersion"
 }
