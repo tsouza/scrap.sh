@@ -9,14 +9,14 @@ import sh.scrap.scrapper.DataScrapperFunctionLibrary;
 import sh.scrap.scrapper.annotation.Name;
 
 import java.util.Iterator;
+import java.util.Map;
 
 @Name("to-iterable")
-public class ToIterableFunctionFactory implements DataScrapperFunctionFactory {
+public class ToIterableFunctionFactory implements DataScrapperFunctionFactory<Void> {
 
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
+    @Override @SuppressWarnings("unchecked")
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                       Void mainArgument, Map<String, Object> annotations) {
         return context -> subscription -> subscription.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {

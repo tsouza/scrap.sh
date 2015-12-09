@@ -1,5 +1,7 @@
 buildscript {
     repositories {
+        mavenLocal()
+        mavenCentral()
         jcenter()
     }
     dependencies {
@@ -45,6 +47,8 @@ dependencies {
             "se.fishtank:css-selectors:$cssSelectorVersion"
 
     compile "org.apache.commons:commons-lang3:$commonsLangVersion"
+
+    compile "org.springframework:spring-core:$springVersion"
 
     testCompile "org.slf4j:slf4j-simple:$slf4jVersion"
     testCompile "commons-io:commons-io:$commonsIOVersion"

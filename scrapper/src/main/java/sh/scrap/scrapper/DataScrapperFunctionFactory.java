@@ -1,8 +1,11 @@
 package sh.scrap.scrapper;
 
-public interface DataScrapperFunctionFactory {
+import java.util.Map;
 
-    DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args);
+public interface DataScrapperFunctionFactory<T> {
+
+    DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                T mainArgument, Map<String, Object> annotations);
 
     default boolean isValidName(String name) {
         return true;

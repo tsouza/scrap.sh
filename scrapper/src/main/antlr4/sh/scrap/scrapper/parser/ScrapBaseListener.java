@@ -22,19 +22,6 @@ public class ScrapBaseListener implements ScrapListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArgument(@NotNull ScrapParser.ArgumentContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArgument(@NotNull ScrapParser.ArgumentContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterExpression(@NotNull ScrapParser.ExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -81,6 +68,32 @@ public class ScrapBaseListener implements ScrapListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunctionName(@NotNull ScrapParser.FunctionNameContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterJsonValue(@NotNull ScrapParser.JsonValueContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJsonValue(@NotNull ScrapParser.JsonValueContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnnotations(@NotNull ScrapParser.AnnotationsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnnotations(@NotNull ScrapParser.AnnotationsContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -139,19 +152,6 @@ public class ScrapBaseListener implements ScrapListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterArgumentList(@NotNull ScrapParser.ArgumentListContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitArgumentList(@NotNull ScrapParser.ArgumentListContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterIdentifierName(@NotNull ScrapParser.IdentifierNameContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -178,6 +178,45 @@ public class ScrapBaseListener implements ScrapListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterLocalName(@NotNull ScrapParser.LocalNameContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLocalName(@NotNull ScrapParser.LocalNameContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterJsonObjectEntry(@NotNull ScrapParser.JsonObjectEntryContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJsonObjectEntry(@NotNull ScrapParser.JsonObjectEntryContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAnnotationsList(@NotNull ScrapParser.AnnotationsListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAnnotationsList(@NotNull ScrapParser.AnnotationsListContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -185,6 +224,19 @@ public class ScrapBaseListener implements ScrapListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNamespace(@NotNull ScrapParser.NamespaceContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNamespace(@NotNull ScrapParser.NamespaceContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -217,6 +269,45 @@ public class ScrapBaseListener implements ScrapListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterJsonObject(@NotNull ScrapParser.JsonObjectContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJsonObject(@NotNull ScrapParser.JsonObjectContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterArgumentsList(@NotNull ScrapParser.ArgumentsListContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitArgumentsList(@NotNull ScrapParser.ArgumentsListContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMainArgument(@NotNull ScrapParser.MainArgumentContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMainArgument(@NotNull ScrapParser.MainArgumentContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -224,6 +315,19 @@ public class ScrapBaseListener implements ScrapListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterJsonArray(@NotNull ScrapParser.JsonArrayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitJsonArray(@NotNull ScrapParser.JsonArrayContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

@@ -8,7 +8,6 @@ import sh.scrap.scrapper.DataScrapperFunction;
 import sh.scrap.scrapper.DataScrapperFunctionFactory;
 import sh.scrap.scrapper.DataScrapperFunctionLibrary;
 import sh.scrap.scrapper.annotation.Name;
-import sh.scrap.scrapper.annotation.Requires;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -17,17 +16,19 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.util.Map;
 
 @Name("to-string")
-public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
+public class ToStringFunctionFactory implements DataScrapperFunctionFactory<Void> {
 
     @Override
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                       Void mainArgument, Map<String, Object> annotations) {
         return context -> subscriber -> subscriber.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
                 try {
-                    String data = ToStringFunctionFactory.this.toString(context.data());
+                    String data = ToStringFunctionFactory.toString(context.data());
                     subscriber.onNext(context.withData(data));
                     subscriber.onComplete();
                 } catch (TransformerException e) {
@@ -40,7 +41,7 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
         });
     }
 
-    protected String toString(Object data) throws TransformerException {
+    static String toString(Object data) throws TransformerException {
         if (data instanceof Text)
             data = ((Text) data).getTextContent();
 
@@ -56,7 +57,7 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory {
         return (String) data;
     }
 
-    private String nodeToString(Node node) throws TransformerException {
+    private static String nodeToString(Node node) throws TransformerException {
         StringWriter sw = new StringWriter();
         Transformer t = TransformerFactory.newInstance().newTransformer();
         t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");

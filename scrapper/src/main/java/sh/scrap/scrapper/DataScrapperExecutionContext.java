@@ -1,7 +1,5 @@
 package sh.scrap.scrapper;
 
-import org.reactivestreams.Publisher;
-
 import java.util.Map;
 
 public interface DataScrapperExecutionContext {
@@ -11,6 +9,4 @@ public interface DataScrapperExecutionContext {
     Object data();
 
     DataScrapperExecutionContext withData(Object data);
-
-    Publisher<DataScrapperExecutionContext> invoke(String functionName, Object... args);
 }

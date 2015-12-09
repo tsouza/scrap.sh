@@ -93,7 +93,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
     }
 
     public boolean isValidFunctionName(String text) {
-        String[] p = text.split(":");
+        String[] p = text.split("\\.");
         boolean exists = factories.containsKey(p[0]);
         if (p.length == 1 || !exists)
             return exists;
@@ -117,7 +117,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         }
     }
 
-    private static class NullWrapper implements DataScrapperFunctionFactory {
+    private static class NullWrapper implements DataScrapperFunctionFactory<Object> {
 
         private final DataScrapperFunctionFactory wrapped;
 
@@ -130,9 +130,10 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
             return wrapped.isValidName(name);
         }
 
-        @Override
-        public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
-            DataScrapperFunction function = wrapped.create(name, library, args);
+        @Override @SuppressWarnings("unchecked")
+        public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                           Object mainArgument, Map<String, Object> annotations) {
+            DataScrapperFunction function = wrapped.create(name, library, mainArgument, annotations);
             return (context) -> context.data() == null ?
                     publisher -> {
                         publisher.onNext(context);
@@ -164,26 +165,25 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
                 return context(fieldName, metadata, data);
             }
 
-            @Override
-            public Publisher<DataScrapperExecutionContext> invoke(String functionName, Object... args) {
-                return factories.get(functionName).create(functionName, library, args).
-                        process(this);
-            }
-
         };
     }
 
-    private DataScrapperFunction createFunction(String name, Object... args) {
-        String[] n = name.split(":");
+    private DataScrapperFunction createFunction(String name) {
+        return createFunction(name, null, Collections.emptyMap());
+    }
+
+    @SuppressWarnings("unchecked")
+    private DataScrapperFunction createFunction(String name, Object mainArgument, Map<String, Object> annotations) {
+        String[] n = name.split("\\.");
         if (n.length == 1)
             return factories.get(n[0])
-                    .create(n[0], library, args);
+                    .create(n[0], library, mainArgument, annotations);
         return factories.get(n[0])
-                .create(n[1], library, args);
+                .create(n[1], library, mainArgument, annotations);
     }
 
     private DataScrapperFunctionFactory getFactory(String name) {
-        return ((NullWrapper) factories.get(name.split(":")[0])).wrapped;
+        return ((NullWrapper) factories.get(name.split("\\.")[0])).wrapped;
     }
 
     class FieldBuilder implements Field {
@@ -205,9 +205,22 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         }
 
         @Override
-        public Field map(String functionName, Object... args) {
+        public Field map(String functionName) {
+            return map(functionName, null);
+        }
+
+        @Override
+        public Field map(String functionName, Object mainArgument) {
+            return map(functionName, mainArgument, Collections.emptyMap());
+        }
+
+        @Override
+        public Field map(String functionName, Object mainArgument, Map<String, Object> annotations) {
+            annotations = annotations == null ?
+                    Collections.emptyMap() : annotations;
+
             steps.addLast(new FunctionStep(fieldName, createFunction("to-object")));
-            DataScrapperFunction function = createFunction(functionName, args);
+            DataScrapperFunction function = createFunction(functionName, mainArgument, annotations);
             DataScrapperFunctionFactory factory = getFactory(functionName);
             if (factory.getClass().isAnnotationPresent(Requires.class))
                 for (String requiredFunction : factory.getClass().getAnnotation(Requires.class).value())

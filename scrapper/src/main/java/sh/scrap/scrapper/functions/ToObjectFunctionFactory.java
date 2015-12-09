@@ -9,12 +9,14 @@ import sh.scrap.scrapper.DataScrapperFunctionLibrary;
 import sh.scrap.scrapper.annotation.Name;
 
 import java.util.Iterator;
+import java.util.Map;
 
 @Name("to-object")
-public class ToObjectFunctionFactory implements DataScrapperFunctionFactory {
+public class ToObjectFunctionFactory implements DataScrapperFunctionFactory<Void> {
 
     @Override
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                       Void mainArgument, Map<String, Object> annotations) {
         return context -> subscription -> subscription.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {

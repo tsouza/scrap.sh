@@ -3,6 +3,7 @@ package sh.scrap.scrapper.functions;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -32,7 +33,9 @@ public class RegexpFunctionTest extends FunctionsTestBase {
         String text = "1 2 3 5 2 4";
         testFunction(new RegexpFunctionFactory(),
                 data -> assertThat(data, equalTo(Arrays.asList("1:3", "5:4"))),
-                text, "(\\d) 2 (\\d)", ":");
+                text, "(\\d) 2 (\\d)", new HashMap<String, Object>() {{
+                    put("separator", ":");
+                }});
 
     }
 }

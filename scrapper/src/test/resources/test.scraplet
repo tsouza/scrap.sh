@@ -11,10 +11,21 @@ categories : string
     -> xpath "//body/script[1]/text()"
     -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
     -> json "$.pageCategory[0]"
-    -> array string:split ","
-        -> string:upperCase;
+    -> foreach string.split ","
+        -> string.upperCase;
 
 price : number
+    -> css "span.catalog-detail-price-value"
+    -> xpath "./text()"
+    -> string.trim
+    -> regexp "(\\d+)?,(\\d{2})?"
+        { separator: "." };
+
+lastUpdate : string
     -> xpath "//body/script[1]/text()"
     -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
-    -> json "$.price";
+    -> json "$.lastUpdate"
+    -> string.appendIfMissing " 00:00:00.000" { suffixes: null }
+    -> date.parse "d 'de' MMMM 'de' yyyy HH:mm:ss.SSS"
+        { locale: "pt_BR", timezone: "America/Sao_Paulo" }
+    -> date.format "dd/MM/yyyy";

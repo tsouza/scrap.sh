@@ -19,16 +19,17 @@ import java.util.List;
 import java.util.Map;
 
 @Name("json")
-public class JsonFunctionFactory extends ToStringFunctionFactory implements DataScrapperFunctionFactory {
+public class JsonFunctionFactory implements DataScrapperFunctionFactory<String> {
 
-    private final JsonProvider jsonProvider = Configuration
+    public static final JsonProvider jsonProvider = Configuration
             .defaultConfiguration()
             .jsonProvider(createProvider())
             .jsonProvider();
 
     @Override
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
-        JsonPath path = JsonPath.compile((String) args[0]);
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                       String mainArgument, Map<String, Object> annotations) {
+        JsonPath path = JsonPath.compile(mainArgument);
         return context -> subscriber -> subscriber.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
@@ -47,7 +48,7 @@ public class JsonFunctionFactory extends ToStringFunctionFactory implements Data
                     process(path, context.withData(data), subscriber);
 
                 } else try {
-                    process(path, context.withData(JsonFunctionFactory.this.toString(data)), subscriber);
+                    process(path, context.withData(ToStringFunctionFactory.toString(data)), subscriber);
                 } catch (TransformerException e) {
                     subscriber.onError(e);
                     subscriber.onComplete();
@@ -74,7 +75,7 @@ public class JsonFunctionFactory extends ToStringFunctionFactory implements Data
         subscriber.onComplete();
     }
 
-    private JsonProvider createProvider() {
+    private static JsonProvider createProvider() {
         JacksonJsonProvider provider = new JacksonJsonProvider();
         provider.getObjectMapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true);
         provider.getObjectMapper().configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);

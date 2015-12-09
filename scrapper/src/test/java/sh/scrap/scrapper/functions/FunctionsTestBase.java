@@ -10,12 +10,15 @@ import sh.scrap.scrapper.impl.ReactorDataScrapperBuilder;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.ByteArrayInputStream;
+import java.util.Collections;
+import java.util.Map;
 
 public class FunctionsTestBase extends ReactorDataScrapperBuilder {
 
     @SuppressWarnings("unchecked")
-    protected <O> void testFunction(DataScrapperFunctionFactory factory, Verifier<O> verifier, Object input, Object... args) {
-        factory.create(getName(factory), library, args).
+    protected <O> void testFunction(DataScrapperFunctionFactory factory, Verifier<O> verifier, Object input,
+                                    Object mainArgument, Map<String, Object> annotations) {
+        factory.create(getName(factory), library, mainArgument, annotations).
                 process(context(null, null, input)).
                 subscribe(new Subscriber<DataScrapperExecutionContext>() {
                     @Override
@@ -39,6 +42,15 @@ public class FunctionsTestBase extends ReactorDataScrapperBuilder {
                     public void onComplete() {
                     }
                 });
+    }
+
+    protected <O> void testFunction(DataScrapperFunctionFactory factory, Verifier<O> verifier, Object input,
+                                    Object mainArgument) {
+        testFunction(factory, verifier, input, mainArgument, Collections.emptyMap());
+    }
+
+    protected <O> void testFunction(DataScrapperFunctionFactory factory, Verifier<O> verifier, Object input) {
+        testFunction(factory, verifier, input, null, Collections.emptyMap());
     }
 
     protected String getName(DataScrapperFunctionFactory factory) {

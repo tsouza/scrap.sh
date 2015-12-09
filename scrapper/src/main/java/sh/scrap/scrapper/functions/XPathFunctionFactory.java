@@ -15,9 +15,12 @@ import sh.scrap.scrapper.annotation.Name;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
 import java.io.IOException;
+import java.util.Map;
+
+import static sh.scrap.scrapper.functions.ToXmlFunctionFactory.toXML;
 
 @Name("xpath")
-public class XPathFunctionFactory extends ToXmlFunctionFactory implements DataScrapperFunctionFactory {
+public class XPathFunctionFactory implements DataScrapperFunctionFactory<String> {
 
     public static final String XHTML_NS = "http://www.w3.org/1999/xhtml";
 
@@ -35,10 +38,11 @@ public class XPathFunctionFactory extends ToXmlFunctionFactory implements DataSc
     }
 
     @Override
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                       String mainArgument, Map<String, Object> annotations) {
         return context -> subscriber -> {
             try {
-                XPathExpression xpath = this.xpath.compile((String) args[0]);
+                XPathExpression xpath = this.xpath.compile(mainArgument);
                 subscriber.onSubscribe(new Subscription() {
                     @Override
                     public void request(long n) {

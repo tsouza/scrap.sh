@@ -72,6 +72,9 @@ public class DataScrapperTest {
 
         assertThat(result.get("price"),
                 equalTo(114.99));
+
+        assertThat(result.get("lastUpdate"),
+                equalTo("08/12/2015"));
     }
 
     private String loadResource(String name) throws IOException {

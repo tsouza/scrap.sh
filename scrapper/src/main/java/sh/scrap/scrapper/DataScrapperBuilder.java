@@ -1,6 +1,7 @@
 package sh.scrap.scrapper;
 
 import javax.script.ScriptException;
+import java.util.Map;
 
 public interface DataScrapperBuilder {
 
@@ -13,7 +14,9 @@ public interface DataScrapperBuilder {
 
     interface Field {
         Field castTo(FieldType type);
-        Field map(String functionName, Object... args);
+        Field map(String functionName);
+        Field map(String functionName, Object mainArgument);
+        Field map(String functionName, Object mainArgument, Map<String, Object> annotations);
         Field forEach();
         DataScrapper build();
     }

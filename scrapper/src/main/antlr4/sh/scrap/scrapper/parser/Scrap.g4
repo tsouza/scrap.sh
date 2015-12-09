@@ -14,8 +14,9 @@ import static sh.scrap.scrapper.DataScrapperBuilder.FieldType;
         this.functionNameValidator = functionNameValidator;
     }
 
-    private boolean isValidFunction(String text) {
-        return functionNameValidator.isValidFunctionName(text);
+    private boolean isValidFunction(String namespace, String localName) {
+        return functionNameValidator.isValidFunctionName(namespace == null ?
+            localName : namespace + "." + localName);
     }
 
     private boolean isValidTypeCast(String text) {
@@ -54,24 +55,51 @@ singleExpression
  ;
 
 iterationExpression
-  : 'array' functionName arguments
+  : 'foreach' functionName arguments
   ;
 
-
 arguments
- : argumentList?
+ : argumentsList?
  ;
 
-argumentList
- : argument ( ',' argument )*
+argumentsList
+ : mainArgument annotations
  ;
 
-argument
+annotations
+ : annotationsList?
+ ;
+
+annotationsList
+ : jsonObject
+ ;
+
+mainArgument
  : literal
  ;
 
 fieldName
  : identifierName
+ ;
+
+jsonValue
+ : jsonObject
+ | jsonArray
+ | literal
+ ;
+
+jsonObjectEntry
+ : identifierName ':' jsonValue
+ ;
+
+jsonObject
+ : '{' '}'
+ | '{' jsonObjectEntry ( ',' jsonObjectEntry )* '}'
+ ;
+
+jsonArray
+ : '[' ']'
+ | '[' jsonValue ( ',' jsonValue ) '}'
  ;
 
 literal
@@ -99,11 +127,19 @@ reservedWord
  ;
 
 typeCast
- : identifierName {isValidTypeCast($identifierName.text)}?
+ : identifierName 'array'? {isValidTypeCast($identifierName.text)}?
  ;
 
 functionName
- : identifierName {isValidFunction($identifierName.text)}?
+ : ( namespace '.' ) ? localName {isValidFunction($namespace.text, $localName.text)}?
+ ;
+
+namespace
+ : identifierName
+ ;
+
+localName
+ : identifierName
  ;
 
 LineTerminator
@@ -242,7 +278,6 @@ fragment IdentifierStart
 
 fragment IdentifierPart
  : IdentifierStart
- | ':'
  | UnicodeCombiningMark
  | UnicodeDigit
  | UnicodeConnectorPunctuation
@@ -250,6 +285,16 @@ fragment IdentifierPart
  | ZWJ
  ;
 
+fragment IdentifierPartNS
+ : IdentifierStart
+ | ':'
+ | UnicodeCombiningMark
+ | UnicodeDigit
+ | UnicodeConnectorPunctuation
+ | ZWNJ
+ | ZWJ
+
+ ;
 fragment UnicodeLetter
  : [\u0041-\u005A]
  | [\u0061-\u007A]

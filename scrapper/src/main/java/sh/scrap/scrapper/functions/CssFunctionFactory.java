@@ -17,16 +17,18 @@ import sh.scrap.scrapper.annotation.Name;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Name("css")
-public class CssFunctionFactory extends ToXmlFunctionFactory implements DataScrapperFunctionFactory {
+public class CssFunctionFactory implements DataScrapperFunctionFactory<String> {
 
     public CssFunctionFactory() throws ParserConfigurationException {}
 
     @Override
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                       String mainArgument, Map<String, Object> annotations) {
         return context -> subscriber -> {
-            List<Selector> selectors = Selectors.parse((String) args[0]);
+            List<Selector> selectors = Selectors.parse(mainArgument);
             subscriber.onSubscribe(new Subscription() {
                 @Override
                 public void request(long n) {
@@ -34,7 +36,7 @@ public class CssFunctionFactory extends ToXmlFunctionFactory implements DataScra
                     if (data instanceof Node)
                         process(selectors, context, subscriber);
                     else try {
-                        data = toXML(data);
+                        data = ToXmlFunctionFactory.toXML(data);
                         process(selectors, context.withData(data), subscriber);
                     } catch (IOException | SAXException e) {
                         subscriber.onError(e);

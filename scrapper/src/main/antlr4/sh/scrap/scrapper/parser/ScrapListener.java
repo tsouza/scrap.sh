@@ -14,17 +14,6 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface ScrapListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by {@link ScrapParser#argument}.
-	 * @param ctx the parse tree
-	 */
-	void enterArgument(@NotNull ScrapParser.ArgumentContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ScrapParser#argument}.
-	 * @param ctx the parse tree
-	 */
-	void exitArgument(@NotNull ScrapParser.ArgumentContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link ScrapParser#expression}.
 	 * @param ctx the parse tree
 	 */
@@ -67,6 +56,28 @@ public interface ScrapListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunctionName(@NotNull ScrapParser.FunctionNameContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#jsonValue}.
+	 * @param ctx the parse tree
+	 */
+	void enterJsonValue(@NotNull ScrapParser.JsonValueContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#jsonValue}.
+	 * @param ctx the parse tree
+	 */
+	void exitJsonValue(@NotNull ScrapParser.JsonValueContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#annotations}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnnotations(@NotNull ScrapParser.AnnotationsContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#annotations}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnnotations(@NotNull ScrapParser.AnnotationsContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link ScrapParser#scrapOutput}.
@@ -113,17 +124,6 @@ public interface ScrapListener extends ParseTreeListener {
 	void exitLiteral(@NotNull ScrapParser.LiteralContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link ScrapParser#argumentList}.
-	 * @param ctx the parse tree
-	 */
-	void enterArgumentList(@NotNull ScrapParser.ArgumentListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ScrapParser#argumentList}.
-	 * @param ctx the parse tree
-	 */
-	void exitArgumentList(@NotNull ScrapParser.ArgumentListContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link ScrapParser#identifierName}.
 	 * @param ctx the parse tree
 	 */
@@ -146,6 +146,39 @@ public interface ScrapListener extends ParseTreeListener {
 	void exitTypeCast(@NotNull ScrapParser.TypeCastContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link ScrapParser#localName}.
+	 * @param ctx the parse tree
+	 */
+	void enterLocalName(@NotNull ScrapParser.LocalNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#localName}.
+	 * @param ctx the parse tree
+	 */
+	void exitLocalName(@NotNull ScrapParser.LocalNameContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#jsonObjectEntry}.
+	 * @param ctx the parse tree
+	 */
+	void enterJsonObjectEntry(@NotNull ScrapParser.JsonObjectEntryContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#jsonObjectEntry}.
+	 * @param ctx the parse tree
+	 */
+	void exitJsonObjectEntry(@NotNull ScrapParser.JsonObjectEntryContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#annotationsList}.
+	 * @param ctx the parse tree
+	 */
+	void enterAnnotationsList(@NotNull ScrapParser.AnnotationsListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#annotationsList}.
+	 * @param ctx the parse tree
+	 */
+	void exitAnnotationsList(@NotNull ScrapParser.AnnotationsListContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link ScrapParser#fieldExpression}.
 	 * @param ctx the parse tree
 	 */
@@ -155,6 +188,17 @@ public interface ScrapListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#namespace}.
+	 * @param ctx the parse tree
+	 */
+	void enterNamespace(@NotNull ScrapParser.NamespaceContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#namespace}.
+	 * @param ctx the parse tree
+	 */
+	void exitNamespace(@NotNull ScrapParser.NamespaceContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link ScrapParser#iterationExpression}.
@@ -179,6 +223,39 @@ public interface ScrapListener extends ParseTreeListener {
 	void exitArguments(@NotNull ScrapParser.ArgumentsContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link ScrapParser#jsonObject}.
+	 * @param ctx the parse tree
+	 */
+	void enterJsonObject(@NotNull ScrapParser.JsonObjectContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#jsonObject}.
+	 * @param ctx the parse tree
+	 */
+	void exitJsonObject(@NotNull ScrapParser.JsonObjectContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#argumentsList}.
+	 * @param ctx the parse tree
+	 */
+	void enterArgumentsList(@NotNull ScrapParser.ArgumentsListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#argumentsList}.
+	 * @param ctx the parse tree
+	 */
+	void exitArgumentsList(@NotNull ScrapParser.ArgumentsListContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#mainArgument}.
+	 * @param ctx the parse tree
+	 */
+	void enterMainArgument(@NotNull ScrapParser.MainArgumentContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#mainArgument}.
+	 * @param ctx the parse tree
+	 */
+	void exitMainArgument(@NotNull ScrapParser.MainArgumentContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link ScrapParser#numericLiteral}.
 	 * @param ctx the parse tree
 	 */
@@ -188,4 +265,15 @@ public interface ScrapListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link ScrapParser#jsonArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterJsonArray(@NotNull ScrapParser.JsonArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ScrapParser#jsonArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitJsonArray(@NotNull ScrapParser.JsonArrayContext ctx);
 }

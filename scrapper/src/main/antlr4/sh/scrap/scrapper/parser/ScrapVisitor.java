@@ -17,13 +17,6 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link ScrapParser#argument}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArgument(@NotNull ScrapParser.ArgumentContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link ScrapParser#expression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -50,6 +43,20 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunctionName(@NotNull ScrapParser.FunctionNameContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#jsonValue}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJsonValue(@NotNull ScrapParser.JsonValueContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#annotations}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAnnotations(@NotNull ScrapParser.AnnotationsContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link ScrapParser#scrapOutput}.
@@ -80,13 +87,6 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	T visitLiteral(@NotNull ScrapParser.LiteralContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link ScrapParser#argumentList}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArgumentList(@NotNull ScrapParser.ArgumentListContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link ScrapParser#identifierName}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -101,11 +101,39 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	T visitTypeCast(@NotNull ScrapParser.TypeCastContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link ScrapParser#localName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLocalName(@NotNull ScrapParser.LocalNameContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#jsonObjectEntry}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJsonObjectEntry(@NotNull ScrapParser.JsonObjectEntryContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#annotationsList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAnnotationsList(@NotNull ScrapParser.AnnotationsListContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link ScrapParser#fieldExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitFieldExpression(@NotNull ScrapParser.FieldExpressionContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#namespace}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNamespace(@NotNull ScrapParser.NamespaceContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link ScrapParser#iterationExpression}.
@@ -122,9 +150,37 @@ public interface ScrapVisitor<T> extends ParseTreeVisitor<T> {
 	T visitArguments(@NotNull ScrapParser.ArgumentsContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link ScrapParser#jsonObject}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJsonObject(@NotNull ScrapParser.JsonObjectContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#argumentsList}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArgumentsList(@NotNull ScrapParser.ArgumentsListContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#mainArgument}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMainArgument(@NotNull ScrapParser.MainArgumentContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link ScrapParser#numericLiteral}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNumericLiteral(@NotNull ScrapParser.NumericLiteralContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link ScrapParser#jsonArray}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitJsonArray(@NotNull ScrapParser.JsonArrayContext ctx);
 }

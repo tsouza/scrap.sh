@@ -1,4 +1,5 @@
 sh.scrap.scrapper.functions.CssFunctionFactory
+sh.scrap.scrapper.functions.DateFunctionFactory
 sh.scrap.scrapper.functions.ForEachFunctionFactory
 sh.scrap.scrapper.functions.JsonFunctionFactory
 sh.scrap.scrapper.functions.LibFunctionFactory

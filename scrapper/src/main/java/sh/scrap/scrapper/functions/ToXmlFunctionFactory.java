@@ -14,28 +14,19 @@ import sh.scrap.scrapper.annotation.Name;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map;
 
 @Name("to-xml")
-public class ToXmlFunctionFactory implements DataScrapperFunctionFactory {
+public class ToXmlFunctionFactory implements DataScrapperFunctionFactory<Void> {
 
-    private final Parser xmlParser;
-    private final Parser htmlParser;
-
-    public ToXmlFunctionFactory() throws ParserConfigurationException {
-        DocumentBuilder xmlBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        xmlParser = xmlBuilder::parse;
-
-        HtmlDocumentBuilder htmlBuilder = new HtmlDocumentBuilder();
-        htmlParser = htmlBuilder::parse;
-
-        htmlBuilder.setHeuristics(Heuristics.ALL);
-    }
+    private static final Parser xmlParser;
+    private static final Parser htmlParser;
 
     @Override
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
+                                       Void mainArgument, Map<String, Object> annotations) {
         return context -> subscriber -> subscriber.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
@@ -58,7 +49,7 @@ public class ToXmlFunctionFactory implements DataScrapperFunctionFactory {
         });
     }
 
-    protected Node toXML(Object data) throws IOException, SAXException {
+    static Node toXML(Object data) throws IOException, SAXException {
         String body = data.toString().trim();
 
         Parser parser = body.startsWith("<?xml") ?
@@ -70,5 +61,21 @@ public class ToXmlFunctionFactory implements DataScrapperFunctionFactory {
 
     interface Parser {
         Document parse(InputSource source) throws IOException, SAXException;
+    }
+
+    static {
+        try {
+            DocumentBuilder xmlBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            xmlParser = xmlBuilder::parse;
+
+            HtmlDocumentBuilder htmlBuilder = new HtmlDocumentBuilder();
+            htmlParser = htmlBuilder::parse;
+
+            htmlBuilder.setHeuristics(Heuristics.ALL);
+
+        } catch (Exception e) {
+            throw new ExceptionInInitializerError(e);
+        }
+
     }
 }

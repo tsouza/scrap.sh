@@ -9,17 +9,18 @@ import sh.scrap.scrapper.annotation.Requires;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Name("regexp") @Requires("to-string")
-public class RegexpFunctionFactory implements DataScrapperFunctionFactory {
+public class RegexpFunctionFactory implements DataScrapperFunctionFactory<String> {
 
     @Override
-    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, Object... args) {
-        Pattern pattern = Pattern.compile((String) args[0],
+    public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library, String mainArgument, Map<String, Object> annotations) {
+        Pattern pattern = Pattern.compile(mainArgument,
                 Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-        String joiner = args.length > 1 ? (String) args[1] : "";
+        Object separator = annotations.getOrDefault("separator", "");
         return context -> subscriber -> subscriber.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
@@ -30,7 +31,7 @@ public class RegexpFunctionFactory implements DataScrapperFunctionFactory {
                     if (matcher.groupCount() > 0) {
                         StringBuilder joined = new StringBuilder();
                         for (int i = 1; i <= matcher.groupCount(); i++)
-                            joined.append(i == 1 ? "" : joiner)
+                            joined.append(i == 1 ? "" : separator)
                                     .append(matcher.group(i));
                         result.add(joined.toString());
                     }
