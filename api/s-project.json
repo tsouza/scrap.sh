@@ -1,0 +1,20 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "profile": "serverless-0",
+  "location": "https://github.com/tsouza/scrap.sh",
+  "author": "",
+  "description": "",
+  "domain": "api.scrap.sh",
+  "stages": {
+    "development": [
+      {
+        "region": "us-west-2",
+        "iamRoleArnLambda": "arn:aws:iam::987244611312:role/api-development-r-IamRoleLambda-13U70UT2ZJ0TS",
+        "regionBucket": "serverless.uswest2.api.scrap.sh"
+      }
+    ]
+  },
+  "custom": {},
+  "plugins": []
+}
