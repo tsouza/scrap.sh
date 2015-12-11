@@ -1,0 +1,38 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.7.0/axios.min.js"></script>
+<script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+
+<button onclick="login()">test</button>
+
+<script type="text/javascript">
+    function login() {
+        var ref = new Firebase("https://scrapsh.firebaseio.com");
+        ref.authWithOAuthPopup("github", function(error, authData) {
+            if (error) {
+                console.log("Login Failed!", error);
+            } else {
+                var uid = authData.uid;
+                ref.child("users").child(uid)
+                    .transaction(function(user) {
+                        var authorizations = authData[authData.provider];
+                        if (!user) {
+                            user = {
+                                uid: uid,
+                                providers: [
+                                    authData[authData.provider]
+                                ]
+                            };
+                        } else user.providers.push(provider);
+                        return user;
+                    }, function(err) {
+                        if (err) throw err;
+                        axios.post("https://api.scrap.sh/v1/authorize", {
+                                uid: uid
+                            }).then(function(resp) {
+                                console.log(resp);
+                            });
+                    });
+
+            }
+        });
+    }
+</script>

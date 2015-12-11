@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "users": {
+      ".read": "auth.token == '8hiWBIwZlzdujOZ4ZYMW6e5QUEau9Ij7EVfpIvtO'",
+      ".write": "auth.token == '8hiWBIwZlzdujOZ4ZYMW6e5QUEau9Ij7EVfpIvtO'",
+      "$uid": {
+        ".read": "auth.token == '8hiWBIwZlzdujOZ4ZYMW6e5QUEau9Ij7EVfpIvtO' || $uid == auth.uid",
+        ".write": "auth.token == '8hiWBIwZlzdujOZ4ZYMW6e5QUEau9Ij7EVfpIvtO' || $uid == auth.uid"
+      }
+    }
+  }
+}
