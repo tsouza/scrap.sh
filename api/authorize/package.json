@@ -1,0 +1,21 @@
+{
+  "name": "scrap.sh-api.authorize",
+  "version": "0.0.1",
+  "devDependencies": {
+    "aws-sdk": "^2.2.22",
+    "del": "^2.2.0",
+    "gulp": "^3.9.0",
+    "gulp-install": "^0.6.0",
+    "gulp-jshint": "^2.0.0",
+    "gulp-zip": "^3.0.2",
+    "jshint": "^2.8.0",
+    "jshint-stylish": "^2.1.0",
+    "lodash": "^3.10.1",
+    "node-aws-lambda": "^0.1.6",
+    "run-sequence": "^1.1.5"
+  },
+  "dependencies": {
+    "bluebird": "^3.0.6",
+    "firebase": "^2.3.2"
+  }
+}
