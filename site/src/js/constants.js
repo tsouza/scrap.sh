@@ -2,7 +2,8 @@
 
 const AppSettings = {
   appTitle: 'scrap.sh',
-  apiUrl: 'https://api.scrap.sh/v1/',
+  scrapperApiUrl: 'https://api.scrap.sh/v1/',
+  serviceApiUrl: '/api/v1',
   firebaseUrl: 'https://scrapsh.firebaseio.com'
 };
 

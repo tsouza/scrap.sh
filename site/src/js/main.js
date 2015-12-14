@@ -1,6 +1,7 @@
 'use strict';
 
-import babelPolyfill from 'babel-polyfill';
+require('babel-polyfill');
+
 import Promise from 'bluebird';
 
 import angular from 'angular';

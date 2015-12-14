@@ -6,28 +6,32 @@ export default {
   UIPort: 3001,
 
   sourceDir: './src/',
-  buildDir: './build/',
+  buildDir: './public/',
 
   styles: {
     src: 'src/styles/**/*.scss',
-    dest: 'build/css',
+    dest: 'public/css',
     prodSourcemap: false,
     sassIncludePaths: []
   },
 
   scripts: {
     src: 'src/js/**/*.js',
-    dest: 'build/js'
+    dest: 'public/js'
+  },
+
+  server: {
+    src: 'server/**/*.js'
   },
 
   images: {
     src: 'src/images/**/*',
-    dest: 'build/images'
+    dest: 'public/images'
   },
 
   fonts: {
     src: ['src/fonts/**/*'],
-    dest: 'build/fonts'
+    dest: 'public/fonts'
   },
 
   assetExtensions: [
@@ -51,8 +55,8 @@ export default {
   },
 
   gzip: {
-    src: 'build/**/*.{html,xml,json,css,js,js.map,css.map}',
-    dest: 'build/',
+    src: 'public/**/*.{html,xml,json,css,js,js.map,css.map}',
+    dest: 'public/',
     options: {}
   },
 
