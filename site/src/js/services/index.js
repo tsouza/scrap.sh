@@ -9,8 +9,9 @@ const services = bulk(__dirname, ['./**/!(*index|*.spec).js']);
 
 Object.keys(services).forEach((key) => {
   let item = services[key];
-
-  servicesModule.service(item.name, item.fn);
+  var name = item.name.split("");
+  name[0] = name[0].toLowerCase();
+  servicesModule.service(name.join(""), item.fn);
 });
 
 export default servicesModule;

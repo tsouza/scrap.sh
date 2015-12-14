@@ -1,7 +1,7 @@
 {
   "region": "us-west-2",
   "handler": "index.handler",
-  "role": "arn:aws:iam::987244611312:role/lambda_basic_execution",
+  "role": "arn:aws:iam::700122456994:role/lambda_basic_execution",
   "timeout": 10,
   "memorySize": 128
 }

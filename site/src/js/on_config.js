@@ -6,11 +6,10 @@ function OnConfig($stateProvider, $locationProvider, $urlRouterProvider) {
   $locationProvider.html5Mode(true);
 
   $stateProvider
-  .state('Home', {
+  .state('signin', {
     url: '/',
-    controller: 'ExampleCtrl as home',
-    templateUrl: 'home.html',
-    title: 'Home'
+    title: 'Sign in',
+    templateUrl: 'signin.html'
   });
 
   $urlRouterProvider.otherwise('/');

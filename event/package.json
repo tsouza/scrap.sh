@@ -1,0 +1,11 @@
+{
+  "name": "scrap.sh-event",
+  "version": "0.0.1",
+  "private": "true",
+  "dependencies": {
+    "async": "^1.5.0",
+    "aws-sdk": "^2.2.22",
+    "bluebird": "^3.0.6",
+    "fireproof": "^3.1.0"
+  }
+}

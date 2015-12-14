@@ -1,6 +1,11 @@
 'use strict';
 
+import babelPolyfill from 'babel-polyfill';
+import Promise from 'bluebird';
+
 import angular from 'angular';
+
+(window || global).Promise = Promise;
 
 // angular modules
 import 'angular-ui-router';

@@ -10,14 +10,18 @@ var ref;
 
 exports.handler = function (auth, context) {
 
-    if (!auth.uid) return context.fail("FORBIDDEN");
+    if (!auth.uid) {
+      console.log("no uid");
+      return context.fail("FORBIDDEN");
+    }
 
     firebaseRef().then(function (ref) {
         ref.child("users").child(auth.uid)
             .transaction(function (user) {
                if (!user) {
-                   context.fail("FORBIDDEN");
-                   return;
+                    console.log("user not found");
+                    context.fail("FORBIDDEN");
+                    return;
                }
                switch (user.apiKey) {
                     case "$AUTHORIZING":
@@ -26,7 +30,9 @@ exports.handler = function (auth, context) {
                     case null: case undefined:
                         apigateway.createApiKey({
                             name: auth.uid, enabled: true,
-                            stageKeys: [{ restApiId: "87y5jx03uc", stageName: "beta" }]
+                            stageKeys: [{
+                              restApiId: "3fp2gra6ia",
+                              stageName: "v1" }]
                         }, function (err, key) {
                             if (err) return context.fail(err);
                             key = { apiKey: key.id };
@@ -48,22 +54,32 @@ exports.handler = function (auth, context) {
             }, function(err) {
                 if (err) return context.fail(err);
             });
+    }).catch(function(err) {
+      context.fail(err);
     });
 
-    function firebaseRef() {
-        if (ref) return ref;
-        return (ref = new Promise(function(resolve, reject) {
-            var firebase = new Firebase("https://scrapsh.firebaseio.com/");
-            firebase.authWithCustomToken("8hiWBIwZlzdujOZ4ZYMW6e5QUEau9Ij7EVfpIvtO",
-                function(err) {
-                    if (err) return context.fail(err);
-                    resolve(firebase);
-                });
-        }));
-    }
-
-    function response(obj) {
-        return { uid: auth.uid, apiKey: obj.apiKey };
-    }
 };
 
+function firebaseRef() {
+    if (ref) return ref;
+    return (ref = new Promise(function(resolve, reject) {
+        var firebase = new Firebase("https://scrapsh.firebaseio.com");
+        firebase.authWithCustomToken("8hiWBIwZlzdujOZ4ZYMW6e5QUEau9Ij7EVfpIvtO",
+            function(err) {
+                if (err) return reject(err);
+                resolve(firebase);
+            });
+    }));
+}
+
+function response(obj) {
+    return { uid: obj.uid, apiKey: obj.apiKey };
+}
+
+firebaseRef().then(function(ref) {
+  ref.child("users").child("github:122435")
+    .transaction(function(user) {
+      console.log("teste " + user);
+      return;
+    }, function() {});
+});
