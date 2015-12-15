@@ -1,6 +1,6 @@
 'use strict';
 
-function SigninCtrl($scope, scrapper, firebase) {
+function SigninCtrl($scope, scrapper) {
   'ngInject';
 
   $scope.login = (username, password, remember) => {
@@ -10,18 +10,6 @@ function SigninCtrl($scope, scrapper, firebase) {
   };
 
   $scope.github = (remember) => {
-    firebase.authWithOAuthPopup('github')
-        .then((auth) => {
-          return firebase.child("users").child(auth.uid)
-            .transaction((user) => user || auth)
-            .return(auth); })
-        .then((auth) => {
-            return scrapper.authorize({ uid: auth.uid })
-              .then((scrapperAuth) => {
-                  return firebase.child("users").child(auth.uid)
-                    .update({ apiKey: scrapperAuth.apiKey });
-              });
-        });
   };
 
   $scope.signup = (username, password, remember) => {

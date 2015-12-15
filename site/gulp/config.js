@@ -20,10 +20,6 @@ export default {
     dest: 'public/js'
   },
 
-  server: {
-    src: 'server/**/*.js'
-  },
-
   images: {
     src: 'src/images/**/*',
     dest: 'public/images'

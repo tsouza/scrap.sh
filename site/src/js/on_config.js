@@ -1,7 +1,12 @@
 'use strict';
 
-function OnConfig($stateProvider, $locationProvider, $urlRouterProvider) {
+import Parse from "parse";
+
+function OnConfig($stateProvider, $locationProvider,
+          $urlRouterProvider, AppSettings) {
   'ngInject';
+
+  Parse.initialize(AppSettings.parse.appId, AppSettings.parse.jsKey);
 
   $locationProvider.html5Mode(true);
 
