@@ -1,20 +1,19 @@
 'use strict';
 
 import { Lambda, DynamoDB, APIGateway } from "aws-sdk";
-import { promifyAll } from 'bluebird';
+import { promisifyAll } from 'bluebird';
 import Dynamizer from 'dynamizer';
 import _ from 'lodash';
 
-var encode = (obj) => Dynamizer().encode(obj);
+var encode = (obj) => Dynamizer().encode(obj).M;
 
-var lambda = promifyAll(new Lambda()),
-    dynamodb = promifyAll(new DynamoDB()),
-    apiGateway = promifyAll(new APIGateway());
+var dynamodb = promisifyAll(new DynamoDB()),
+    apiGateway = promisifyAll(new APIGateway());
 
 class ScrapletService {
 
   create(event, context) {
-    apiGateway.getApiKey({ apiKey: event.apiKey })
+    apiGateway.getApiKeyAsync({ apiKey: event.apiKey })
       .tap((apiKey) => { if (!apiKey) { throw "FORBIDDEN"; } })
       .then((apiKey) => ({
         accountId: apiKey.name,
@@ -24,18 +23,23 @@ class ScrapletService {
         createdAt: (new Date()).toISOString(),
         updatedAt: (new Date()).toISOString()
       }))
-      .then((scraplet) => dynamodb.putItem({
+      .then((scraplet) => dynamodb.putItemAsync({
         TableName: "scraplet",
         Item: encode(scraplet),
-        Exists: false,
-        Value: _.pick(scraplet,
-          "accountId", "name")
-      }).then(() => context.succeed(scraplet)))
-      .catch((err) => context.fail(err));
+        Expected: {
+          accountId: { Exists: false },
+          name: { Exists: false }
+        }
+      }).then(() => context.succeed(_(scraplet).omit("accountId"))))
+      .catch((err) => {
+        if ("ConditionalCheckFailedException" === err.code)
+          return context.fail("CONFLICT");
+        context.fail(err);
+      });
   }
 
   deploy(event, context) {
-    
+
   }
 }
 
