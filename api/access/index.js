@@ -34,4 +34,4 @@ class AccessService {
   }
 }
 
-export default new AccessService();
+module.exports = new AccessService();
