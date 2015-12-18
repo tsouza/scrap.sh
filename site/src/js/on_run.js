@@ -5,6 +5,7 @@ function OnRun($rootScope, user, AppSettings) {
 
   if (user.authenticated)
     user.getProfile().then(function(profile) {
+      console.log(user);
       console.log(profile);
     })
   // change page title based on state
