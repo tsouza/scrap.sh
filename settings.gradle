@@ -1,3 +1,5 @@
 rootProject.name = 'scrap.sh'
 
 include "scrapper"
+include 'scraplet'
+

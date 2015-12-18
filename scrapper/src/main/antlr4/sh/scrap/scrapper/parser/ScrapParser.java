@@ -1,4 +1,4 @@
-// Generated from /Users/thiago/scrap.sh/scrapper/src/main/antlr4/sh/scrap/scrapper/parser/Scrap.g4 by ANTLR 4.2.2
+// Generated from /home/tsouza/scrap.sh/scrapper/src/main/antlr4/sh/scrap/scrapper/parser/Scrap.g4 by ANTLR 4.2.2
 package sh.scrap.scrapper.parser;
 
 import java.util.Collection;
@@ -20,14 +20,13 @@ public class ScrapParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__10=1, T__9=2, T__8=3, T__7=4, T__6=5, T__5=6, T__4=7, T__3=8, T__2=9, 
-		T__1=10, T__0=11, LineTerminator=12, NullLiteral=13, BooleanLiteral=14, 
-		DecimalLiteral=15, HexIntegerLiteral=16, OctalIntegerLiteral=17, Identifier=18, 
-		StringLiteral=19, WhiteSpaces=20, MultiLineComment=21, SingleLineComment=22, 
-		UnexpectedCharacter=23;
+		T__9=1, T__8=2, T__7=3, T__6=4, T__5=5, T__4=6, T__3=7, T__2=8, T__1=9, 
+		T__0=10, LineTerminator=11, NullLiteral=12, BooleanLiteral=13, DecimalLiteral=14, 
+		HexIntegerLiteral=15, OctalIntegerLiteral=16, Identifier=17, StringLiteral=18, 
+		WhiteSpaces=19, MultiLineComment=20, SingleLineComment=21, UnexpectedCharacter=22;
 	public static final String[] tokenNames = {
 		"<INVALID>", "'->'", "'foreach'", "':'", "'['", "'{'", "';'", "','", "'array'", 
-		"']'", "'}'", "'.'", "LineTerminator", "'null'", "BooleanLiteral", "DecimalLiteral", 
+		"']'", "'}'", "LineTerminator", "'null'", "BooleanLiteral", "DecimalLiteral", 
 		"HexIntegerLiteral", "OctalIntegerLiteral", "Identifier", "StringLiteral", 
 		"WhiteSpaces", "MultiLineComment", "SingleLineComment", "UnexpectedCharacter"
 	};
@@ -1287,7 +1286,7 @@ public class ScrapParser extends Parser {
 			case 1:
 				{
 				setState(152); ((FunctionNameContext)_localctx).namespace = namespace();
-				setState(153); match(11);
+				setState(153); match(3);
 				}
 				break;
 			}
@@ -1415,7 +1414,7 @@ public class ScrapParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\31\u00a7\4\2\t\2"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\30\u00a7\4\2\t\2"+
 		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
 		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\4\30\t\30\4\31\t\31"+
@@ -1428,7 +1427,7 @@ public class ScrapParser extends Parser {
 		"\5\22\u008b\n\22\3\23\3\23\3\24\3\24\5\24\u0091\n\24\3\25\3\25\3\26\3"+
 		"\26\5\26\u0097\n\26\3\26\3\26\3\27\3\27\3\27\5\27\u009e\n\27\3\27\3\27"+
 		"\3\27\3\30\3\30\3\31\3\31\3\31\2\2\32\2\4\6\b\n\f\16\20\22\24\26\30\32"+
-		"\34\36 \"$&(*,.\60\2\5\4\2\17\20\25\25\3\2\21\23\3\2\17\20\u009d\2\62"+
+		"\34\36 \"$&(*,.\60\2\5\4\2\16\17\24\24\3\2\20\22\3\2\16\17\u009d\2\62"+
 		"\3\2\2\2\49\3\2\2\2\6C\3\2\2\2\bM\3\2\2\2\nO\3\2\2\2\fR\3\2\2\2\16W\3"+
 		"\2\2\2\20Y\3\2\2\2\22]\3\2\2\2\24_\3\2\2\2\26a\3\2\2\2\30c\3\2\2\2\32"+
 		"h\3\2\2\2\34j\3\2\2\2\36{\3\2\2\2 \u0086\3\2\2\2\"\u008a\3\2\2\2$\u008c"+
@@ -1451,11 +1450,11 @@ public class ScrapParser extends Parser {
 		"\u0083\5\32\16\2\u0083\u0084\3\2\2\2\u0084\u0085\7\f\2\2\u0085\u0087\3"+
 		"\2\2\2\u0086}\3\2\2\2\u0086\177\3\2\2\2\u0087!\3\2\2\2\u0088\u008b\t\2"+
 		"\2\2\u0089\u008b\5$\23\2\u008a\u0088\3\2\2\2\u008a\u0089\3\2\2\2\u008b"+
-		"#\3\2\2\2\u008c\u008d\t\3\2\2\u008d%\3\2\2\2\u008e\u0091\7\24\2\2\u008f"+
+		"#\3\2\2\2\u008c\u008d\t\3\2\2\u008d%\3\2\2\2\u008e\u0091\7\23\2\2\u008f"+
 		"\u0091\5(\25\2\u0090\u008e\3\2\2\2\u0090\u008f\3\2\2\2\u0091\'\3\2\2\2"+
 		"\u0092\u0093\t\4\2\2\u0093)\3\2\2\2\u0094\u0096\5&\24\2\u0095\u0097\7"+
 		"\n\2\2\u0096\u0095\3\2\2\2\u0096\u0097\3\2\2\2\u0097\u0098\3\2\2\2\u0098"+
-		"\u0099\6\26\2\3\u0099+\3\2\2\2\u009a\u009b\5.\30\2\u009b\u009c\7\r\2\2"+
+		"\u0099\6\26\2\3\u0099+\3\2\2\2\u009a\u009b\5.\30\2\u009b\u009c\7\5\2\2"+
 		"\u009c\u009e\3\2\2\2\u009d\u009a\3\2\2\2\u009d\u009e\3\2\2\2\u009e\u009f"+
 		"\3\2\2\2\u009f\u00a0\5\60\31\2\u00a0\u00a1\6\27\3\3\u00a1-\3\2\2\2\u00a2"+
 		"\u00a3\5&\24\2\u00a3/\3\2\2\2\u00a4\u00a5\5&\24\2\u00a5\61\3\2\2\2\20"+

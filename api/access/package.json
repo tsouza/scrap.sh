@@ -1,5 +1,5 @@
 {
-  "name": "scrap.sh-api.authorize",
+  "name": "scrap.sh-access",
   "version": "0.0.1",
   "devDependencies": {
     "async": "^1.5.0",

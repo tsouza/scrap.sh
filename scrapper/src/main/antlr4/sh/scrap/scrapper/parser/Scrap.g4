@@ -131,7 +131,7 @@ typeCast
  ;
 
 functionName
- : ( namespace '.' ) ? localName {isValidFunction($namespace.text, $localName.text)}?
+ : ( namespace ':' ) ? localName {isValidFunction($namespace.text, $localName.text)}?
  ;
 
 namespace

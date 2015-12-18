@@ -7,17 +7,17 @@ sku : string
     -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
     -> json "$.sku";
 
-categories : string
+categories : string array
     -> xpath "//body/script[1]/text()"
     -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
     -> json "$.pageCategory[0]"
-    -> foreach string.split ","
-        -> string.upperCase;
+    -> foreach string:split ","
+        -> string:upperCase;
 
 price : number
     -> css "span.catalog-detail-price-value"
     -> xpath "./text()"
-    -> string.trim
+    -> string:trim
     -> regexp "(\\d+)?,(\\d{2})?"
         { separator: "." };
 
@@ -25,7 +25,7 @@ lastUpdate : string
     -> xpath "//body/script[1]/text()"
     -> regexp "^.*dataLayer = \\[(.+)?\\];.*$"
     -> json "$.lastUpdate"
-    -> string.appendIfMissing " 00:00:00.000" { suffixes: null }
-    -> date.parse "d 'de' MMMM 'de' yyyy HH:mm:ss.SSS"
+    -> string:appendIfMissing " 00:00:00.000" { suffixes: null }
+    -> date:parse "d 'de' MMMM 'de' yyyy HH:mm:ss.SSS"
         { locale: "pt_BR", timezone: "America/Sao_Paulo" }
-    -> date.format "dd/MM/yyyy";
+    -> date:format "dd/MM/yyyy";

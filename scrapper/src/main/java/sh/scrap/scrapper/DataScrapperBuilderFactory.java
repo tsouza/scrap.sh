@@ -12,14 +12,24 @@ import sh.scrap.scrapper.parser.ScrapBaseListener;
 import sh.scrap.scrapper.parser.ScrapLexer;
 import sh.scrap.scrapper.parser.ScrapParser;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DataScrapperBuilderFactory {
 
+    public static DataScrapperBuilderFactory fromScript(Reader script) throws IOException {
+        return fromScript(new ANTLRInputStream(script));
+    }
+
     public static DataScrapperBuilderFactory fromScript(String script) {
+        return fromScript(new ANTLRInputStream(script));
+    }
+
+    private static DataScrapperBuilderFactory fromScript(ANTLRInputStream script) {
         ReactorDataScrapperBuilder builder = new ReactorDataScrapperBuilder();
-        ScrapLexer lexer = new ScrapLexer(new ANTLRInputStream(script));
+        ScrapLexer lexer = new ScrapLexer(script);
         ScrapParser parser = new ScrapParser(new CommonTokenStream(lexer),
                 builder::isValidFunctionName);
         parser.setErrorHandler(new BailErrorStrategy());
@@ -50,8 +60,6 @@ public class DataScrapperBuilderFactory {
         Object mainArgument;
         Map<String, Object> annotations = new HashMap<>();
 
-        boolean isArray = false;
-
         @Override
         public void enterFunctionName(ScrapParser.FunctionNameContext ctx) {
             functionName = ctx.getText();
@@ -66,7 +74,7 @@ public class DataScrapperBuilderFactory {
         public void enterTypeCast(ScrapParser.TypeCastContext ctx) {
             String text = ctx.getText();
             if (text.endsWith("array")) {
-                isArray = true;
+                currentField = currentField.asArray();
                 text = text.replace("array", "");
             }
             currentField = currentField
@@ -102,14 +110,6 @@ public class DataScrapperBuilderFactory {
         public void exitExpression(ScrapParser.ExpressionContext ctx) {
             mainArgument = null;
             annotations = null;
-        }
-
-        @Override
-        public void exitFieldExpression(ScrapParser.FieldExpressionContext ctx) {
-            if (isArray)
-                currentField.forEach();
-
-            isArray = false;
         }
     }
 

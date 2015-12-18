@@ -1,0 +1,22 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.2'
+    }
+}
+
+apply plugin: 'com.github.johnrengelman.shadow'
+
+dependencies {
+    compile project(":scrapper")
+    compile "com.amazonaws:aws-lambda-java-core:$lambdaVersion"
+    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+}
+
+shadowJar {
+    dependencies {
+        exclude(dependency("com.amazonaws:.*"))
+    }
+}

@@ -25,6 +25,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
     protected final JSLibrary library;
     private final Map<String, Deque<Step>> fieldSteps = new HashMap<>();
     private final Map<String, FieldType> fieldTypes = new HashMap<>();
+    private final Set<String> arrayTypes = new HashSet<>();
 
     public ReactorDataScrapperBuilder() {
         library = new JSLibrary();
@@ -174,7 +175,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     @SuppressWarnings("unchecked")
     private DataScrapperFunction createFunction(String name, Object mainArgument, Map<String, Object> annotations) {
-        String[] n = name.split("\\.");
+        String[] n = name.split(NAMESPACE_SEPARATOR);
         if (n.length == 1)
             return factories.get(n[0])
                     .create(n[0], library, mainArgument, annotations);
@@ -183,7 +184,7 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
     }
 
     private DataScrapperFunctionFactory getFactory(String name) {
-        return ((NullWrapper) factories.get(name.split("\\.")[0])).wrapped;
+        return ((NullWrapper) factories.get(name.split(NAMESPACE_SEPARATOR)[0])).wrapped;
     }
 
     class FieldBuilder implements Field {
@@ -201,6 +202,12 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         @Override
         public Field castTo(FieldType type) {
             fieldTypes.put(fieldName, type);
+            return this;
+        }
+
+        @Override
+        public Field asArray() {
+            arrayTypes.add(fieldName);
             return this;
         }
 
@@ -267,7 +274,9 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
         @Override
         public void onBuild(Deque<Step> steps) {
-            steps.addLast(new FunctionStep(fieldName, createFunction("to-object")));
+            boolean isArray = arrayTypes.contains(fieldName);
+            steps.addLast(new FunctionStep(fieldName,
+                    createFunction(isArray ? "for-each" : "to-object")));
             steps.addLast(new FunctionStep(fieldName, createFunction("to-" + typeCast())));
         }
 
@@ -318,4 +327,6 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         }
 
     }
+
+    private static final String NAMESPACE_SEPARATOR = "\\:";
 }

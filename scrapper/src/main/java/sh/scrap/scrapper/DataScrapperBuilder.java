@@ -14,6 +14,7 @@ public interface DataScrapperBuilder {
 
     interface Field {
         Field castTo(FieldType type);
+        Field asArray();
         Field map(String functionName);
         Field map(String functionName, Object mainArgument);
         Field map(String functionName, Object mainArgument, Map<String, Object> annotations);
