@@ -13,13 +13,19 @@ gulp.task('clean', function() {
 });
 
 gulp.task('js', function() {
-  return gulp.src('index.js')
+  return gulp.src(['create.js', 'on_change.js'])
     .pipe(babel({ presets: [ "es2015" ] }))
     .pipe(gulp.dest('dist/'));
 });
 
+gulp.task('js:hub', function() {
+  return gulp.src('hub/*.js')
+    .pipe(babel({ presets: [ "es2015" ] }))
+    .pipe(gulp.dest('dist/hub'));
+});
+
 gulp.task("check", function() {
-  return gulp.src("dist/index.js")
+  return gulp.src(['dist/create.js', 'dist/on_change.js', 'dist/hub/*'])
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 });
@@ -48,7 +54,7 @@ gulp.task('upload', function(callback) {
 gulp.task('deploy', function(callback) {
   return runSequence(
     ['clean'],
-    ['check', 'js', 'node-mods'],
+    ['js', 'js:hub', 'check', 'node-mods'],
     ['zip'],
     ['upload'],
     callback

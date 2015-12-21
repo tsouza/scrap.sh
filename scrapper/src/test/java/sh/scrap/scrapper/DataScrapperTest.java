@@ -77,7 +77,7 @@ public class DataScrapperTest {
                 equalTo("08/12/2015"));
     }
 
-    private String loadResource(String name) throws IOException {
+    private static String loadResource(String name) throws IOException {
         try (InputStream res = DataScrapperTest.class.getResourceAsStream(name)) {
             return IOUtils.toString(res);
         }

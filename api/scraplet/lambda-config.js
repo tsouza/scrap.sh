@@ -4,6 +4,10 @@ var _ = require("lodash"),
 module.exports = [
   _.merge({}, base, {
     functionName: "scrap-sh-scraplet_create",
-    handler: "index.create"
+    handler: "create.handle"
+  }),
+  _.merge({}, base, {
+    functionName: "scrap-sh-scraplet_on-change",
+    handler: "on_change.handle"
   })
 ]
