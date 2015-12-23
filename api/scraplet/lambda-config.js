@@ -15,6 +15,10 @@ module.exports = [
     handler: "invoke.handle"
   }),
   _.merge({}, base, {
+    functionName: "scrap-sh-scraplet_history",
+    handler: "invoke.history"
+  }),
+  _.merge({}, base, {
     functionName: "scrap-sh-scraplet_on-change",
     handler: "on_change.handle"
   })

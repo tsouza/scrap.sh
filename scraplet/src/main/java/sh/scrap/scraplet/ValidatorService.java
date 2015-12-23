@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.google.common.collect.ImmutableMap;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
+import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import sh.scrap.scrapper.DataScrapper;
@@ -25,7 +26,7 @@ public class ValidatorService {
             } catch (ParseCancellationException e) {
                 throw e.getCause();
             }
-        } catch (NoViableAltException | InputMismatchException e) {
+        } catch (RecognitionException e) {
             Token offendingToken = e.getOffendingToken();
             return ImmutableMap.<String, Object>builder()
                     .put("Result", "INVALID")
