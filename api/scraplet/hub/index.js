@@ -3,7 +3,7 @@ import { AsyncEmitter } from 'async-glob-events';
 export default (lambda, dynamodb, apiGateway, s3) => {
   var hub = new AsyncEmitter();
 
-  ["new"]
+  ["validate"]
   .forEach((state) => {
     var listener = require("./" + state).default;
     var handler = listener.handler(lambda, dynamodb, apiGateway, s3);

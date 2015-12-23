@@ -4,7 +4,7 @@ import { DynamoDB, APIGateway, S3, Lambda } from "aws-sdk";
 import Promise from 'bluebird';
 import Dynamizer from 'dynamizer';
 import _ from 'lodash';
-import Hub from "./hub";
+import createHub from "./hub";
 
 var decode = (obj) => Dynamizer().decode({ M: obj });
 
@@ -13,7 +13,7 @@ var lambda = Promise.promisifyAll(new Lambda(), { suffix: "Promise" }),
     dynamodb = Promise.promisifyAll(new DynamoDB()),
     apiGateway = Promise.promisifyAll(new APIGateway());
 
-var hub = Hub(lambda, dynamodb, apiGateway, s3);
+var hub = createHub(lambda, dynamodb, apiGateway, s3);
 
 class OnChangeScrapletService {
 
@@ -29,10 +29,10 @@ class OnChangeScrapletService {
       (newVal ? newVal.Status : "NULL");
 
     hub.emit(stateChange, oldVal, newVal,
-      (err) => {
-        if (err) return context.fail(err);
-        context.succeed();
-      });
+      (err, result) => err ?
+        context.fail(err) :
+        context.succeed(result)
+      );
   }
 
 }

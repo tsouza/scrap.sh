@@ -13,7 +13,7 @@ gulp.task('clean', function() {
 });
 
 gulp.task('js', function() {
-  return gulp.src(['create.js', 'on_change.js'])
+  return gulp.src(['create.js', 'update.js', 'invoke.js', 'on_change.js'])
     .pipe(babel({ presets: [ "es2015" ] }))
     .pipe(gulp.dest('dist/'));
 });
@@ -25,7 +25,8 @@ gulp.task('js:hub', function() {
 });
 
 gulp.task("check", function() {
-  return gulp.src(['dist/create.js', 'dist/on_change.js', 'dist/hub/*'])
+  return gulp.src(['dist/create.js', 'dist/update.js',
+      'dist/invoke.js', 'dist/on_change.js', 'dist/hub/*'])
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'));
 });

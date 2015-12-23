@@ -15,20 +15,20 @@ class AccessService {
     }, (err, response) => {
       if (err) return context.fail(err);
       context.succeed({
-        accessToken: auth.accessToken,
-        apiKey: response.id
+        AccountId: auth.AccountId,
+        ApiKey: response.id
       });
     })
   }
 
   replace(auth, context) {
     var self = this;
-    apiGateway.getApiKey({ apiKey: auth.apiKey },
+    apiGateway.getApiKey({ apiKey: auth.ApiKey },
       (err, response) => {
         if (err) return context.fail(err);
-        if (!response || response.name != auth.accessToken)
+        if (!response || response.name != auth.AccountId)
           return context.fail("FORBIDDEN");
-        apiGateway.deleteApiKey({ apiKey: auth.apiKey },
+        apiGateway.deleteApiKey({ apiKey: auth.ApiKey },
           (err) => err ? context.fail(err) : self.create(auth, context));
       });
   }

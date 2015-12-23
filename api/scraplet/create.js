@@ -35,10 +35,10 @@ module.exports = new CreateScrapletService();
 
 function makeEntry(event) {
   return resolve({
-    ApiKey: event.apiKey,
-    Name: event.scraplet.name,
-    Script: event.scraplet.script,
-    Status: "NEW",
+    ApiKey: event.ApiKey,
+    Name: event.Scraplet.Name,
+    Script: event.Scraplet.Script,
+    Status: "PENDING_VALIDATION",
     CreatedAt: (new Date()).toISOString(),
     Version: 1
   });
