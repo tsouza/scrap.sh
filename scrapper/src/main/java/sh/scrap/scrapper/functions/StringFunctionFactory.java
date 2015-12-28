@@ -36,6 +36,7 @@ public class StringFunctionFactory implements DataScrapperFunctionFactory<Object
                     @Override
                     public void request(long n) {
                         Object data = context.data();
+                        context.objectProcessed(data);
                         Object[] invokeArgs = new Object[method.getParameterCount()];
                         invokeArgs[0] = data;
                         if (method.getParameterCount() > 1)

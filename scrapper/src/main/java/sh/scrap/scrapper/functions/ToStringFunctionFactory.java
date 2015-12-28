@@ -28,7 +28,10 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory<Void
             @Override
             public void request(long n) {
                 try {
-                    String data = ToStringFunctionFactory.toString(context.data());
+                    Object data = context.data();
+                    if (!(data instanceof String))
+                        context.objectProcessed(data);
+                    data = ToStringFunctionFactory.toString(data);
                     subscriber.onNext(context.withData(data));
                     subscriber.onComplete();
                 } catch (TransformerException e) {
@@ -41,7 +44,7 @@ public class ToStringFunctionFactory implements DataScrapperFunctionFactory<Void
         });
     }
 
-    static String toString(Object data) throws TransformerException {
+    public static String toString(Object data) throws TransformerException {
         if (data instanceof Text)
             data = ((Text) data).getTextContent();
 

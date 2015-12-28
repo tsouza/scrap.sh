@@ -6,6 +6,7 @@ import Dynamizer from 'dynamizer';
 import _ from 'lodash';
 
 var encode = (obj) => Dynamizer().encode(obj).M;
+var decode = (obj) => Dynamizer().decode({ M: obj });
 
 var dynamodb = promisifyAll(new DynamoDB()),
     apiGateway = promisifyAll(new APIGateway());
@@ -13,21 +14,41 @@ var dynamodb = promisifyAll(new DynamoDB()),
 class CreateScrapletService {
 
   handle(event, context) {
-    makeEntry(event)
-      .then((scraplet) => dynamodb.putItemAsync({
+    makeEntry(event).then((scraplet) =>
+      dynamodb.putItemAsync({
         TableName: "scraplet",
         Item: encode(scraplet),
         ConditionExpression:
           "attribute_not_exists (ApiKey) AND " +
           "attribute_not_exists (#Name)",
         ExpressionAttributeNames: { "#Name": "Name" }
-      }).then(() => context.succeed(_(scraplet).omit("apiKey"))))
+      })
+      .then(() => context.succeed(_(scraplet).omit("apiKey"))))
       .catch((err) => {
         if ("ConditionalCheckFailedException" === err.code)
           return context.fail("CONFLICT");
         context.fail(err);
       });
+  }
 
+  retrieve(event, context) {
+    dynamodb.getItemAsync({
+      TableName: "scraplet",
+      Key: {
+        ApiKey: { S: event.ApiKey },
+        Name: { S: event.Name }
+      }
+    })
+    .tap((response) => {
+      if (!response || !response.Item)
+        throw "NOT_FOUND";
+    })
+    .then((response) => decode(response.Item))
+    .then((scraplet) => context.succeed(
+      _.omit(scraplet, "Status",
+        "ApiKey", "Version")
+    ))
+    .catch((err) => context.fail(err))
   }
 }
 

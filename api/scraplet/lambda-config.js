@@ -7,6 +7,10 @@ module.exports = [
     handler: "create.handle"
   }),
   _.merge({}, base, {
+    functionName: "scrap-sh-scraplet_retrieve",
+    handler: "create.retrieve"
+  }),
+  _.merge({}, base, {
     functionName: "scrap-sh-scraplet_update",
     handler: "update.handle"
   }),

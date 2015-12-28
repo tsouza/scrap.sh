@@ -18,6 +18,7 @@ public class ToNumberFunctionFactory implements DataScrapperFunctionFactory<Void
             @Override
             public void request(long n) {
                 String data = context.data().toString();
+                context.objectProcessed(data);
                 try {
                     subscription.onNext(context.withData(Integer.parseInt(data)));
                     subscription.onComplete();

@@ -9,4 +9,6 @@ public interface DataScrapperExecutionContext {
     Object data();
 
     DataScrapperExecutionContext withData(Object data);
+
+    void objectProcessed(Object data);
 }

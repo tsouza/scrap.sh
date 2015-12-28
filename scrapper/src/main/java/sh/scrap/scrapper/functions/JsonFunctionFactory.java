@@ -40,6 +40,7 @@ public class JsonFunctionFactory implements DataScrapperFunctionFactory<String> 
 
                 else if (data instanceof String) {
                     try {
+                        context.objectProcessed(data);
                         data = jsonProvider.parse((String) data);
                     } catch (Exception e) {
                         subscriber.onError(e);
@@ -48,6 +49,7 @@ public class JsonFunctionFactory implements DataScrapperFunctionFactory<String> 
                     process(path, context.withData(data), subscriber);
 
                 } else try {
+                    context.objectProcessed(data);
                     process(path, context.withData(ToStringFunctionFactory.toString(data)), subscriber);
                 } catch (TransformerException e) {
                     subscriber.onError(e);
@@ -63,6 +65,7 @@ public class JsonFunctionFactory implements DataScrapperFunctionFactory<String> 
                          Subscriber<? super DataScrapperExecutionContext> subscriber) {
         Object data = context.data();
         try {
+            context.objectProcessed(data);
             data = path.read(data);
         } catch (PathNotFoundException e) {
             data = null;

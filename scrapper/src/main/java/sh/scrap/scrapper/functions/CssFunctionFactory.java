@@ -36,6 +36,7 @@ public class CssFunctionFactory implements DataScrapperFunctionFactory<String> {
                     if (data instanceof Node)
                         process(selectors, context, subscriber);
                     else try {
+                        context.objectProcessed(data);
                         data = ToXmlFunctionFactory.toXML(data);
                         process(selectors, context.withData(data), subscriber);
                     } catch (IOException | SAXException e) {
@@ -54,6 +55,8 @@ public class CssFunctionFactory implements DataScrapperFunctionFactory<String> {
                          Subscriber<? super DataScrapperExecutionContext> subscriber) {
         Object data;
         try {
+            context.objectProcessed(context.data());
+
             Node node = (Node) context.data();
             Document document = node.getOwnerDocument();
             data = new Selectors<>(new W3CNode(document))

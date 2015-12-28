@@ -31,15 +31,18 @@ public class DateFunctionFactory implements DataScrapperFunctionFactory<String> 
                 public void request(long n) {
                     String data = context.data().toString();
                     ZonedDateTime parsed;
+                    context.objectProcessed(data);
                     try {
                         switch (name) {
                             case "parse":
                                 parsed = parse(data, pattern, finalLocale, zoneId);
+                                context.objectProcessed(parsed);
                                 subscription.onNext(context.withData(format(parsed, ISO8601, EN_US, ZoneId.of("UTC"))));
                                 subscription.onComplete();
                                 return;
                             case "format":
                                 parsed = parse(data, ISO8601, EN_US, ZoneId.of("UTC"));
+                                context.objectProcessed(parsed);
                                 subscription.onNext(context.withData(format(parsed, pattern, finalLocale, zoneId)));
                                 subscription.onComplete();
                                 return;

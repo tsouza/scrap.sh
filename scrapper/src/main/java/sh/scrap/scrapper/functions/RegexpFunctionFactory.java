@@ -25,6 +25,7 @@ public class RegexpFunctionFactory implements DataScrapperFunctionFactory<String
             @Override
             public void request(long n) {
                 String data = (String) context.data();
+                context.objectProcessed(data);
                 Matcher matcher = pattern.matcher(data);
                 List<String> result = new ArrayList<>();
                 while (matcher.find()) {
@@ -33,10 +34,15 @@ public class RegexpFunctionFactory implements DataScrapperFunctionFactory<String
                         for (int i = 1; i <= matcher.groupCount(); i++)
                             joined.append(i == 1 ? "" : separator)
                                     .append(matcher.group(i));
-                        result.add(joined.toString());
+                        String str = joined.toString();
+                        context.objectProcessed(str);
+                        result.add(str);
                     }
-                    else
-                        result.add(matcher.group(0));
+                    else {
+                        String str = matcher.group(0);
+                        context.objectProcessed(str);
+                        result.add(str);
+                    }
                 }
 
                 subscriber.onNext(context.withData(result));

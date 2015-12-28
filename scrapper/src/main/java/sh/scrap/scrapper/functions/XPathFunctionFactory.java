@@ -51,6 +51,7 @@ public class XPathFunctionFactory implements DataScrapperFunctionFactory<String>
                             process(xpath, context, subscriber);
 
                         else try {
+                            context.objectProcessed(data);
                             process(xpath, context.withData(toXML(data)), subscriber);
                         } catch (SAXException | IOException e) {
                             subscriber.onError(e);
@@ -69,7 +70,9 @@ public class XPathFunctionFactory implements DataScrapperFunctionFactory<String>
 
     private void process(XPathExpression xpath, DataScrapperExecutionContext context, Subscriber<? super DataScrapperExecutionContext> subscriber) {
         try {
-            Object result = xpath.evaluate(context.data(), XPathConstants.NODESET);
+            Object data = context.data();
+            context.objectProcessed(data);
+            Object result = xpath.evaluate(data, XPathConstants.NODESET);
             subscriber.onNext(context.withData(result));
         } catch (XPathExpressionException e) {
             subscriber.onError(e);

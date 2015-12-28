@@ -1,8 +1,9 @@
 'use script';
 
 import { DynamoDB, Lambda } from "aws-sdk";
-import { promisifyAll, resolve } from 'bluebird';
+import { promisifyAll, resolve, map } from 'bluebird';
 import _ from 'lodash';
+import request from 'request-promise';
 
 var encode = (obj) => Dynamizer().encode(obj).M;
 
@@ -21,45 +22,40 @@ class InvokeScrapletService {
         Name: { S: event.Invoke.Name }
       },
       ConsistentRead: true,
-      ProjectionExpression: "#Status, Script",
+      ProjectionExpression: "#Status",
       ExpressionAttributeNames: {
         "#Status": "Status"
       }
     })
     .tap((response) => {
       if (!response || !response.Item ||
-          !"VALID" === response.Item.Status.S)
+          !"DEPLOYED" === response.Item.Status.S)
           throw "CONFLICT";
     })
     .then((response) => response.Item)
     .then((scraplet) =>
-      lambda.invokePromise({
-        FunctionName: "scrap-sh-scraplet_execute",
-        InvocationType: "RequestResponse",
-        LogType: "Tail",
-        Payload: JSON.stringify({
-          Key: event.ApiKey + "-" + event.Invoke.Name,
-          Script: scraplet.Script.S,
-          Data: event.Invoke.Data,
-          Metadata: event.Invoke.Metadata
-        })
+      request.post({
+        url: "http://backend.scrapsh.net/scraplet/invoke",
+        json: event
       })
     )
-    .tap((result) =>
-      lambda.invokePromise({
+    .spread((response, body) => {
+      var result = body && JSON.parse(body);
+      if (response.statusCode != 200)
+        return context.fail(result);
+      /*return lambda.invokePromise({
         FunctionName: "scrap-sh-scraplet_history",
         InvocationType: "Event",
-        LogType: "Tail",
         Payload: JSON.stringify({
           ApiKey: event.ApiKey,
           Name: event.Invoke.Name,
           Timestamp: now.toISOString(),
-          Result: _.pick(result,
-            "StatusCode", "LogResult")
+          Result: _(result)
+            .pick("BytesProcessed", "BytesReceived")
+            .merge({ StatusCode: response.StatusCode })
         })
-      })
-    )
-    .then((result) => JSON.parse(result.Payload))
+      }).return(payload.Output);*/
+    })
     .then((result) => context.succeed(result))
     .catch((err) => context.fail(err));
   }
@@ -71,9 +67,13 @@ class InvokeScrapletService {
       TableName: "scraplet-invoke-history",
       Item: _.merge(stats, {
         Key: { S: event.ApiKey + "-" + event.Name },
+        ApiKey: { S: event.ApiKey },
+        Name: { S: event.Name },
         Timestamp: { S: event.Timestamp },
-        ResultCode: { N: event.Result.StatusCode + "" },
-        Log: { S: logResult }
+        StatusCode: { N: event.Result.StatusCode + "" },
+        Log: { S: logResult },
+        BytesProcessed: { N: event.Result.BytesProcessed + "" },
+        BytesReceived: { N: event.Result.BytesReceived + "" }
       })
     })
     .then((result) => context.succeed(result))
@@ -94,13 +94,3 @@ function parseStats(logResult) {
     MaxMemoryUsed: { N: match[4] }
   }
 }
-
-/*
-
-{
-  "StatusCode": 200,
-  "LogResult": "START RequestId: f563319d-a9a3-11e5-a2ee-7d98e0f7e61a Version: $LATEST\nEND RequestId: f563319d-a9a3-11e5-a2ee-7d98e0f7e61a\nREPORT RequestId: f563319d-a9a3-11e5-a2ee-7d98e0f7e61a\tDuration: 132.67 ms\tBilled Duration: 200 ms \tMemory Size: 512 MB\tMax Memory Used: 129 MB\t\n",
-  "Payload": {
-    "test2": "testing"
-  }
-}*/

@@ -10,4 +10,5 @@ public interface DataScrapperFunctionFactory<T> {
     default boolean isValidName(String name) {
         return true;
     }
+
 }

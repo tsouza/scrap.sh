@@ -18,8 +18,8 @@ public class FunctionsTestBase extends ReactorDataScrapperBuilder {
     @SuppressWarnings("unchecked")
     protected <O> void testFunction(DataScrapperFunctionFactory factory, Verifier<O> verifier, Object input,
                                     Object mainArgument, Map<String, Object> annotations) {
-        factory.create(getName(factory), library, mainArgument, annotations).
-                process(context(null, null, input)).
+        factory.create(getName(factory), getLibrary(), mainArgument, annotations).
+                process(context(null, null, null, input)).
                 subscribe(new Subscriber<DataScrapperExecutionContext>() {
                     @Override
                     public void onNext(DataScrapperExecutionContext dataScrapperExecutionContext) {

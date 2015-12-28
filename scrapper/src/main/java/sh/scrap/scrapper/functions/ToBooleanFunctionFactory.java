@@ -17,6 +17,7 @@ public class ToBooleanFunctionFactory implements DataScrapperFunctionFactory<Voi
         return context -> subscription -> subscription.onSubscribe(new Subscription() {
             @Override
             public void request(long n) {
+                context.objectProcessed(context.data());
                 String data = context.data().toString().trim().toLowerCase();
                 data = data.matches("^-?[0-9\\.]+$") ? "1" : data;
                 switch (data) {

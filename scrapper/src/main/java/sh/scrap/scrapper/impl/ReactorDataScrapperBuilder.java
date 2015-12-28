@@ -6,30 +6,32 @@ import reactor.rx.Stream;
 import sh.scrap.scrapper.*;
 import sh.scrap.scrapper.annotation.Name;
 import sh.scrap.scrapper.annotation.Requires;
+import sh.scrap.scrapper.util.ObjectUtils;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.io.Serializable;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static reactor.rx.Streams.create;
 
-public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
+public class ReactorDataScrapperBuilder implements DataScrapperBuilder, Serializable {
 
     static { Environment.initialize(); }
 
     private static final Map<String, DataScrapperFunctionFactory> factories = lookupFactories();
 
-    protected final JSLibrary library;
+    protected transient JSLibrary library;
     private final Map<String, Deque<Step>> fieldSteps = new HashMap<>();
     private final Map<String, FieldType> fieldTypes = new HashMap<>();
     private final Set<String> arrayTypes = new HashSet<>();
+    private final Set<String> librarySource = new HashSet<>();
 
-    public ReactorDataScrapperBuilder() {
-        library = new JSLibrary();
-    }
+    public ReactorDataScrapperBuilder() {}
 
     @Override
     public Field field(String fieldName) {
@@ -41,7 +43,8 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     @Override
     public DataScrapperBuilder addLibrarySource(String source) throws ScriptException {
-        library.engine.eval(source);
+        //library.engine.eval(source);
+        librarySource.add(source);
         return this;
     }
 
@@ -51,36 +54,38 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         for (Deque<Step> steps : fieldSteps.values())
             steps.getLast().onBuild(steps);
 
-        return (metadata, data) -> create(build(metadata, data))
-                .buffer(fieldSteps.size())
-                .map(results -> {
-                    Map<String, Object> output = new HashMap<>();
-                    results.forEach(context -> output.put(context.fieldName(), context.data()));
-                    return output;
-                })
-                .dispatchOn(Environment.get())
-                .next();
+        return (processedBytes, metadata, data) ->
+                create(build(processedBytes, metadata, data))
+                    .buffer(fieldSteps.size())
+                    .map(results -> {
+                        Map<String, Object> output = new HashMap<>();
+                        results.forEach(context -> output.put(context.fieldName(), context.data()));
+                        return output;
+                    })
+                    .next();
     }
 
-    private Publisher<DataScrapperExecutionContext> build(Map<String, Object> metadata, Object data) {
+    private Publisher<DataScrapperExecutionContext> build(AtomicInteger processedBytes,
+                                                          Map<String, Object> metadata, Object data) {
         return subscriber -> fieldSteps.entrySet().stream()
-                .forEach(entry -> build(entry.getValue(), context(entry.getKey(), metadata, data))
-                        .dispatchOn(Environment.get())
+                .forEach(entry -> build(processedBytes, entry.getValue(),
+                                    context(processedBytes, entry.getKey(), metadata, data))
                         .when(Throwable.class, subscriber::onError)
                         .consume(subscriber::onNext));
     }
 
-    private Stream<DataScrapperExecutionContext> build(Deque<Step> steps, DataScrapperExecutionContext context) {
+    private Stream<DataScrapperExecutionContext> build(AtomicInteger processedBytes,
+                                                       Deque<Step> steps, DataScrapperExecutionContext context) {
         Stream<DataScrapperExecutionContext> stream = create(subscriber -> {
             subscriber.onNext(context);
             subscriber.onComplete();
         });
         for (Step step : steps)
-            stream = step.build(stream);
+            stream = step.build(processedBytes, stream);
         return stream;
     }
 
-    private static Map<String, DataScrapperFunctionFactory> lookupFactories() {
+    public static Map<String, DataScrapperFunctionFactory> lookupFactories() {
 
         ServiceLoader<DataScrapperFunctionFactory> loader = ServiceLoader.load(DataScrapperFunctionFactory.class);
 
@@ -143,7 +148,8 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         }
     }
 
-    protected DataScrapperExecutionContext context(String fieldName, Map<String, Object> metadata, Object data) {
+    protected DataScrapperExecutionContext context(AtomicInteger processedBytes, String fieldName,
+                                                   Map<String, Object> metadata, Object data) {
         return new DataScrapperExecutionContext() {
 
             @Override
@@ -162,8 +168,16 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
             }
 
             @Override
+            public void objectProcessed(Object object) {
+                if (processedBytes != null) {
+                    int size = ObjectUtils.sizeOf(object);
+                    processedBytes.addAndGet(size);
+                }
+            }
+
+            @Override
             public DataScrapperExecutionContext withData(Object data) {
-                return context(fieldName, metadata, data);
+                return context(processedBytes, fieldName, metadata, data);
             }
 
         };
@@ -175,19 +189,33 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     @SuppressWarnings("unchecked")
     private DataScrapperFunction createFunction(String name, Object mainArgument, Map<String, Object> annotations) {
-        String[] n = name.split(NAMESPACE_SEPARATOR);
+        /*String[] n = name.split(NAMESPACE_SEPARATOR);
         if (n.length == 1)
             return factories.get(n[0])
-                    .create(n[0], library, mainArgument, annotations);
+                    .create(n[0], getLibrary(), mainArgument, annotations);
         return factories.get(n[0])
-                .create(n[1], library, mainArgument, annotations);
+                .create(n[1], getLibrary(), mainArgument, annotations);*/
+        return new DataScrapperFunctionProxy(name, mainArgument, annotations);
     }
 
     private DataScrapperFunctionFactory getFactory(String name) {
         return ((NullWrapper) factories.get(name.split(NAMESPACE_SEPARATOR)[0])).wrapped;
     }
 
-    class FieldBuilder implements Field {
+    protected JSLibrary getLibrary() {
+        try {
+            if (library == null) {
+                library = new JSLibrary();
+                for (String source : librarySource)
+                    library.engine.eval(source);
+            }
+            return library;
+        } catch (ScriptException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    class FieldBuilder implements Field, Serializable {
 
         private final String fieldName;
         private final Deque<Step> steps;
@@ -252,8 +280,9 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     }
 
-    interface Step {
-        Stream<DataScrapperExecutionContext> build(Stream<DataScrapperExecutionContext> stream);
+    interface Step extends Serializable {
+        Stream<DataScrapperExecutionContext> build(AtomicInteger processedBytes,
+                                                   Stream<DataScrapperExecutionContext> stream);
         void onBuild(Deque<Step> steps);
     }
 
@@ -268,7 +297,8 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         }
 
         @Override
-        public Stream<DataScrapperExecutionContext> build(Stream<DataScrapperExecutionContext> stream) {
+        public Stream<DataScrapperExecutionContext> build(AtomicInteger processedBytes,
+                                                          Stream<DataScrapperExecutionContext> stream) {
             return stream.map(function::process).merge();
         }
 
@@ -296,15 +326,16 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
         }
 
         @Override
-        public Stream<DataScrapperExecutionContext> build(Stream<DataScrapperExecutionContext> stream) {
+        public Stream<DataScrapperExecutionContext> build(AtomicInteger processedBytes,
+                                                          Stream<DataScrapperExecutionContext> stream) {
 
             Stream<DataScrapperExecutionContext> subStream = createSubStream(stream);
             for (Step child : children)
-                subStream = child.build(subStream);
+                subStream = child.build(processedBytes, subStream);
 
             return subStream.buffer().map(results -> {
                 if (results.isEmpty())
-                    return context(fieldName, null, null);
+                    return context(processedBytes, fieldName, null, null);
                 List<Object> data = results.stream()
                         .map(DataScrapperExecutionContext::data)
                         .collect(Collectors.toList());
@@ -328,5 +359,31 @@ public class ReactorDataScrapperBuilder implements DataScrapperBuilder {
 
     }
 
+    public class DataScrapperFunctionProxy implements DataScrapperFunction, Serializable {
+
+        private final String functionName;
+        private final Object mainArgument;
+        private final Map<String, Object> annotations;
+
+        public DataScrapperFunctionProxy(String functionName, Object mainArgument, Map<String, Object> annotations) {
+            this.functionName = functionName;
+            this.mainArgument = mainArgument;
+            this.annotations = annotations;
+        }
+
+        @Override @SuppressWarnings("unchecked")
+        public Publisher<DataScrapperExecutionContext> process(DataScrapperExecutionContext context) {
+            String[] n = functionName.split(NAMESPACE_SEPARATOR);
+            if (n.length == 1)
+                return factories.get(n[0])
+                        .create(n[0], getLibrary(), mainArgument, annotations)
+                        .process(context);
+            return factories.get(n[0])
+                    .create(n[1], getLibrary(), mainArgument, annotations)
+                    .process(context);
+        }
+    }
+
     private static final String NAMESPACE_SEPARATOR = "\\:";
+
 }

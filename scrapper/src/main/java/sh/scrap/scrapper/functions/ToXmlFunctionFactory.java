@@ -33,8 +33,10 @@ public class ToXmlFunctionFactory implements DataScrapperFunctionFactory<Void> {
                 try {
                     Object data = context.data();
 
-                    if (!(data instanceof Node))
+                    if (!(data instanceof Node)) {
+                        context.objectProcessed(data);
                         data = toXML(data);
+                    }
 
                     subscriber.onNext(context.withData(data));
 
