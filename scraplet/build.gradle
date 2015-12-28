@@ -39,7 +39,7 @@ dependencies {
 distDocker {
     applicationName "scraplet"
     baseImage "java:8"
-    registry "700122456994.dkr.ecr.us-east-1.amazonaws.com"
-    push true
     tagVersion "latest"
+    push true
+    registry "quay.io/scrapsh"
 }

@@ -26,7 +26,7 @@ public class ScrapletController {
 
     @RequestMapping(path="/scraplet/on-change", method=RequestMethod.POST,
         consumes="application/json", produces="application/json")
-    public void onChange(OnChangeEvent event) throws Throwable {
+    public void onChange(@RequestBody OnChangeEvent event) throws Throwable {
 
         Table scrapletTable = new Table(dynamoDB, "scraplet");
 
@@ -94,7 +94,7 @@ public class ScrapletController {
                 .withPrimaryKey("ApiKey", event.newImage.apiKey,
                         "Name", event.newImage.name)
                 .withUpdateExpression(
-                        "SET #Status :to_status " +
+                        "SET #Status = :to_status " +
                         "ADD Version :increment")
                 .withConditionExpression(
                         "#Status = :from_status AND Version = :version")

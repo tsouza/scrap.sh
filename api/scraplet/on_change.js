@@ -1,9 +1,15 @@
 'use strict';
 
-import request form 'request-promise';
+import request from 'request';
+import { promisifyAll } from 'bluebird';
 import Dynamizer from 'dynamizer';
 
 var decode = (obj) => Dynamizer().decode({ M: obj });
+
+var http = promisifyAll(request.defaults({
+  url: "http://backend.scrapsh.net/scraplet/on-change",
+  json: true
+}));
 
 class OnChangeScrapletService {
 
@@ -14,12 +20,17 @@ class OnChangeScrapletService {
     oldImage = oldImage ? decode(oldImage) : null;
     newImage = newImage ? decode(newImage) : null;
 
-    request.post({
-      url: "http://backend.scrapsh.net/scraplet/on-change",
-      json: { OldImage: oldImage, NewImage: newImage }
+    http.postAsync({
+      body: { OldImage: oldImage, NewImage: newImage },
+      timestamp: context.getRemainingTimeInMillis() * 0.75
     })
-    .then((result) => context.succeed(result))
-    .fail((err) => context.fail(err));
+    .then((response) => response.toJSON())
+    .tap((response) => console.log(response))
+    .spread((response) => response.statusCode == 200 ?
+      context.succeed() : context.fail(response.body.error + ": " +
+          response.body.exception + " - " +
+          response.body.message))
+    .catch((err) => context.fail(err));
   }
 
 }
