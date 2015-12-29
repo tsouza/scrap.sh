@@ -1,15 +1,19 @@
 package sh.scrap.scraplet;
 
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.util.EC2MetadataUtils;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.configuration.IgniteConfiguration;
+import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
@@ -30,11 +34,12 @@ public class Application {
         return Ignition.start(config);
     }
 
-    @Bean IgniteConfiguration config(TcpDiscoveryIpFinder ipFinder) {
+    @Bean IgniteConfiguration config(TcpDiscoveryIpFinder ipFinder, TcpCommunicationSpi communicationSpi) {
         IgniteConfiguration config = new IgniteConfiguration();
         TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
         tcpDiscoverySpi.setIpFinder(ipFinder);
         config.setDiscoverySpi(tcpDiscoverySpi);
+        config.setCommunicationSpi(communicationSpi);
         return config;
     }
 
@@ -45,9 +50,13 @@ public class Application {
 
     @Bean @Profile("production")
     TcpDiscoveryIpFinder awsIpFinder() {
-        AWSCredentialsProvider provider = new InstanceProfileCredentialsProvider();
+        AWSCredentialsProvider provider = new InstanceProfileCredentialsProvider(false);
         TcpDiscoveryS3IpFinder s3IpFinder = new TcpDiscoveryS3IpFinder();
-        s3IpFinder.setAwsCredentials(provider.getCredentials());
+        AWSCredentials credentials = provider.getCredentials();
+        credentials = new BasicAWSCredentials(
+                credentials.getAWSAccessKeyId(),
+                credentials.getAWSSecretKey());
+        s3IpFinder.setAwsCredentials(credentials);
         s3IpFinder.setBucketName("scrap.sh-cluster");
         return s3IpFinder;
     }
@@ -62,4 +71,16 @@ public class Application {
         return new Table(dynamoDB, "scraplet");
     }
 
+    @Bean @Profile("development")
+    TcpCommunicationSpi localTcpCommunication() {
+        return new TcpCommunicationSpi();
+    }
+
+    @Bean @Profile("production")
+    TcpCommunicationSpi awsTcpCommunication() {
+        TcpCommunicationSpi communicationSpi = new TcpCommunicationSpi();
+        String ipAddresss = EC2MetadataUtils.getPrivateIpAddress();
+        communicationSpi.setLocalAddress(ipAddresss);
+        return communicationSpi;
+    }
 }
