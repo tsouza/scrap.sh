@@ -1,8 +1,10 @@
 #cloud-config
 
 coreos:
+  update:
+    reboot-strategy: off
   etcd2:
-    discovery: https://discovery.etcd.io/b57d2bc469bbc22a28b328bb7f933985
+    discovery: https://discovery.etcd.io/15eff628420a3291f7b8adcd58cc2e1e
     advertise-client-urls: http://$private_ipv4:2379,http://$private_ipv4:4001
     initial-advertise-peer-urls: http://$private_ipv4:2380
     listen-client-urls: http://0.0.0.0:2379,http://0.0.0.0:4001

@@ -53,7 +53,7 @@ public class XPathFunctionFactory implements DataScrapperFunctionFactory<String>
                         else try {
                             context.objectProcessed(data);
                             process(xpath, context.withData(toXML(data)), subscriber);
-                        } catch (SAXException | IOException e) {
+                        } catch (SAXException | IOException | ParserConfigurationException e) {
                             subscriber.onError(e);
                             subscriber.onComplete();
                         }

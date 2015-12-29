@@ -1,15 +1,10 @@
 'use strict';
 
 import request from 'request';
-import { promisifyAll } from 'bluebird';
+import Promise from 'bluebird';
 import Dynamizer from 'dynamizer';
 
 var decode = (obj) => Dynamizer().decode({ M: obj });
-
-var http = promisifyAll(request.defaults({
-  url: "http://backend.scrapsh.net/scraplet/on-change",
-  json: true
-}));
 
 class OnChangeScrapletService {
 
@@ -20,19 +15,35 @@ class OnChangeScrapletService {
     oldImage = oldImage ? decode(oldImage) : null;
     newImage = newImage ? decode(newImage) : null;
 
-    http.postAsync({
-      body: { OldImage: oldImage, NewImage: newImage },
-      timestamp: context.getRemainingTimeInMillis() * 0.75
-    })
-    .then((response) => response.toJSON())
-    .tap((response) => console.log(response))
-    .spread((response) => response.statusCode == 200 ?
-      context.succeed() : context.fail(response.body.error + ": " +
-          response.body.exception + " - " +
-          response.body.message))
-    .catch((err) => context.fail(err));
+    dispatchOnChange({ OldImage: oldImage, NewImage: newImage }, context)
+      .spread((response, body) =>
+        response.statusCode == 200 ?
+          context.succeed() :
+          context.fail(body ? body.error + ": " +
+            body.exception + " - " +
+            body.message : response.statusCode + ""))
+      .catch((err) => context.fail(err));
   }
 
 }
 
 module.exports = new OnChangeScrapletService();
+
+
+function dispatchOnChange(event, context) {
+  return new Promise((resolve, reject) => {
+    request.post({ url: "http://backend.scrapsh.net/scraplet/" + urlSuffix(),
+      json: true, body: event,
+      timestamp: context.getRemainingTimeInMillis() * 0.75
+    }, function(err, response, body) {
+      if (err) return reject(err);
+      resolve([ response, body ]);
+    })
+  });
+
+  function urlSuffix() {
+    if (!event.NewImage)
+      return "on-delete";
+    return "on-change/" + event.NewImage.Status;
+  }
+}

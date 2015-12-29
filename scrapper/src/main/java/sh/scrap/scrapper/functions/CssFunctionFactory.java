@@ -39,7 +39,7 @@ public class CssFunctionFactory implements DataScrapperFunctionFactory<String> {
                         context.objectProcessed(data);
                         data = ToXmlFunctionFactory.toXML(data);
                         process(selectors, context.withData(data), subscriber);
-                    } catch (IOException | SAXException e) {
+                    } catch (IOException | SAXException | ParserConfigurationException e) {
                         subscriber.onError(e);
                         subscriber.onComplete();
                     }

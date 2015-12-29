@@ -2,8 +2,11 @@ package sh.scrap.scraplet;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.InstanceProfileCredentialsProvider;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.document.Table;
 import org.apache.ignite.Ignite;
 import org.apache.ignite.Ignition;
 import org.apache.ignite.configuration.IgniteConfiguration;
@@ -50,7 +53,13 @@ public class Application {
     }
 
     @Bean AmazonDynamoDB dynamoDB() {
-        return new AmazonDynamoDBClient();
+        AmazonDynamoDBClient client = new AmazonDynamoDBClient();
+        client.setRegion(Region.getRegion(Regions.US_WEST_2));
+        return client;
+    }
+
+    @Bean Table scrapletTable(AmazonDynamoDB dynamoDB) {
+        return new Table(dynamoDB, "scraplet");
     }
 
 }

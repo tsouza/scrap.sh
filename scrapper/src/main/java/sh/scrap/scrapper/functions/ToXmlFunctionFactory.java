@@ -14,6 +14,7 @@ import sh.scrap.scrapper.annotation.Name;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Map;
@@ -21,8 +22,8 @@ import java.util.Map;
 @Name("to-xml")
 public class ToXmlFunctionFactory implements DataScrapperFunctionFactory<Void> {
 
-    private static final Parser xmlParser;
-    private static final Parser htmlParser;
+    private static final Factory xmlParser;
+    private static final Factory htmlParser;
 
     @Override
     public DataScrapperFunction create(String name, DataScrapperFunctionLibrary library,
@@ -40,7 +41,7 @@ public class ToXmlFunctionFactory implements DataScrapperFunctionFactory<Void> {
 
                     subscriber.onNext(context.withData(data));
 
-                } catch (IOException | SAXException e) {
+                } catch (IOException | SAXException | ParserConfigurationException e) {
                     subscriber.onError(e);
                     return;
                 }
@@ -51,11 +52,11 @@ public class ToXmlFunctionFactory implements DataScrapperFunctionFactory<Void> {
         });
     }
 
-    static Node toXML(Object data) throws IOException, SAXException {
+    static Node toXML(Object data) throws IOException, SAXException, ParserConfigurationException {
         String body = data.toString().trim();
 
         Parser parser = body.startsWith("<?xml") ?
-                xmlParser : htmlParser;
+                xmlParser.create() : htmlParser.create();
 
         return parser.parse(new InputSource(new StringReader(body)))
                 .getDocumentElement();
@@ -68,16 +69,22 @@ public class ToXmlFunctionFactory implements DataScrapperFunctionFactory<Void> {
     static {
         try {
             DocumentBuilder xmlBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            xmlParser = xmlBuilder::parse;
+            xmlParser = () -> DocumentBuilderFactory.newInstance().newDocumentBuilder()::parse;
 
-            HtmlDocumentBuilder htmlBuilder = new HtmlDocumentBuilder();
-            htmlParser = htmlBuilder::parse;
+            htmlParser = () -> {
+                HtmlDocumentBuilder htmlBuilder = new HtmlDocumentBuilder();
+                htmlBuilder.setHeuristics(Heuristics.ALL);
+                return htmlBuilder::parse;
+            };
 
-            htmlBuilder.setHeuristics(Heuristics.ALL);
 
         } catch (Exception e) {
             throw new ExceptionInInitializerError(e);
         }
 
+    }
+
+    interface Factory {
+        Parser create() throws ParserConfigurationException;
     }
 }
