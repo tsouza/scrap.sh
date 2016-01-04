@@ -17,13 +17,12 @@ antlr4 {
     extraArgs=['-package', 'sh.scrap.scrapper.parser']
 }
 
-clean {
-    delete file("src/main/antlr4")
-}
+/*clean {
+    delete file("src/main/antlr4-generated")
+}*/
 
 compileJava {
     dependsOn antlr4
-    options.compilerArgs << '-proc:none'
 }
 
 configurations {
