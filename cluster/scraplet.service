@@ -13,6 +13,8 @@ ExecStartPre=-/usr/bin/docker rm scraplet
 ExecStartPre=/usr/bin/docker pull quay.io/scrapsh/scraplet
 ExecStart=/usr/bin/docker run --name scraplet \
     --net=host -e JAVA_OPTS=${JAVA_OPTS} \
+    --log-driver=awslogs --log-opt awslogs-region=us-west-2 \
+    --log-opt awslogs-group=scraplet \
     quay.io/scrapsh/scraplet
 ExecStop=/usr/bin/docker stop scraplet
 

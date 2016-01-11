@@ -68,7 +68,7 @@ function invoke(event, context) {
   return new Promise((resolve, reject) => {
     request.post({ url: "http://backend.scrapsh.net/scraplet/invoke",
       json: true, body: event,
-      timestamp: context.getRemainingTimeInMillis() * 0.75
+      timeout: context.getRemainingTimeInMillis() * 0.75
     }, function(err, response, body) {
       if (err) return reject(err);
       resolve([ response, body ]);

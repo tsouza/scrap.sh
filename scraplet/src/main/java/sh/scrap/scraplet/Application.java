@@ -1,51 +1,55 @@
 package sh.scrap.scraplet;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.document.Table;
-import org.apache.ignite.Ignite;
-import org.apache.ignite.IgniteCache;
-import org.apache.ignite.Ignition;
-import org.apache.ignite.cache.CacheAtomicityMode;
-import org.apache.ignite.cache.CacheMode;
-import org.apache.ignite.configuration.CacheConfiguration;
-import org.apache.ignite.configuration.IgniteConfiguration;
-import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder;
-import org.apache.ignite.spi.discovery.tcp.ipfinder.s3.TcpDiscoveryS3IpFinder;
-import org.springframework.beans.factory.annotation.Value;
+import io.vertx.core.Vertx;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
-import sh.scrap.scraplet.store.DataScrapperCacheKey;
-import sh.scrap.scraplet.store.DataScrapperCacheStore;
-import sh.scrap.scrapper.DataScrapperBuilder;
+import sh.scrap.scraplet.verticle.ManagerVerticle;
 
-import java.net.UnknownHostException;
+import javax.annotation.PostConstruct;
 
 @SpringBootApplication
 public class Application {
+
+    @Autowired ManagerVerticle manager;
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Application.class, args);
     }
 
-    @Bean Ignite ignite(IgniteConfiguration config) {
+    @PostConstruct
+    public void deployVerticle() {
+        Vertx.vertx().deployVerticle(manager);
+    }
+
+    @Bean AmazonDynamoDBAsync dynamoDB() {
+        AmazonDynamoDBAsyncClient client = new AmazonDynamoDBAsyncClient();
+        client.setRegion(Region.getRegion(Regions.US_WEST_2));
+        return client;
+    }
+
+
+    /*@Bean Ignite ignite(IgniteConfiguration config) {
         return Ignition.start(config);
     }
 
-    @Bean IgniteConfiguration config(TcpDiscoveryIpFinder ipFinder) {
+    @Bean IgniteConfiguration config(TcpDiscoveryIpFinder ipFinder, AddressResolver addressResolver) {
         IgniteConfiguration config = new IgniteConfiguration();
         TcpDiscoverySpi tcpDiscoverySpi = new TcpDiscoverySpi();
         tcpDiscoverySpi.setIpFinder(ipFinder);
         config.setDiscoverySpi(tcpDiscoverySpi);
+        TcpCommunicationSpi communicationSpi = new TcpCommunicationSpi();
+        communicationSpi.setAddressResolver(addressResolver);
+        config.setCommunicationSpi(communicationSpi);
+        config.setAddressResolver(addressResolver);
         return config;
     }
 
@@ -57,8 +61,7 @@ public class Application {
     @Bean @Profile("production")
     TcpDiscoveryIpFinder awsIpFinder(
             @Value("${aws.accessKeyId}") String accessKeyId,
-            @Value("${aws.secretAccessKey}") String secretAccessKey)
-            throws UnknownHostException {
+            @Value("${aws.secretAccessKey}") String secretAccessKey) {
         AWSCredentialsProvider provider = new InstanceProfileCredentialsProvider(false);
         TcpDiscoveryS3IpFinder s3IpFinder = new TcpDiscoveryS3IpFinder();
         s3IpFinder.setAwsCredentials(new BasicAWSCredentials(accessKeyId, secretAccessKey));
@@ -66,15 +69,18 @@ public class Application {
         return s3IpFinder;
     }
 
-    @Bean AmazonDynamoDB dynamoDB() {
-        AmazonDynamoDBClient client = new AmazonDynamoDBClient();
-        client.setRegion(Region.getRegion(Regions.US_WEST_2));
-        return client;
+    @Bean @Profile("development")
+    AddressResolver localAddressResolver() {
+        return Collections::singletonList;
     }
 
-    @Bean Table scrapletTable(AmazonDynamoDB dynamoDB) {
-        return new Table(dynamoDB, "scraplet");
+    @Bean @Profile("production")
+    AddressResolver awsAddressResolver() throws UnknownHostException {
+        InetAddress privateIpAddress = InetAddress.getByName(EC2MetadataUtils.getPrivateIpAddress());
+        return (addr) -> singletonList(new InetSocketAddress(privateIpAddress, addr.getPort()));
     }
+
+
 
     @Bean IgniteCache<DataScrapperCacheKey, DataScrapperBuilder> builderCache(Ignite ignite,
             CacheConfiguration<DataScrapperCacheKey, DataScrapperBuilder> builderCacheConfig) {
@@ -90,5 +96,5 @@ public class Application {
         config.setCacheMode(CacheMode.PARTITIONED);
         config.setBackups(1);
         return config;
-    }
+    }*/
 }
