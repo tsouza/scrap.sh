@@ -15,7 +15,7 @@ class OnChangeScrapletService {
     oldImage = oldImage ? decode(oldImage) : null;
     newImage = newImage ? decode(newImage) : null;
 
-    dispatchOnChange({ OldImage: oldImage, NewImage: newImage }, context)
+    dispatchOnChange(oldImage, newImage, context)
       .spread((response, body) =>
         response.statusCode == 200 ?
           context.succeed() :
@@ -29,21 +29,23 @@ class OnChangeScrapletService {
 
 module.exports = new OnChangeScrapletService();
 
-
-function dispatchOnChange(event, context) {
+function dispatchOnChange(oldImage, newImage, context) {
   return new Promise((resolve, reject) => {
-    request.post({ url: "http://backend.scrapsh.net/scraplet/" + urlSuffix(),
-      json: true, body: event,
-      timeout: context.getRemainingTimeInMillis() * 0.75
-    }, function(err, response, body) {
-      if (err) return reject(err);
-      resolve([ response, body ]);
-    })
-  });
+    if (!newImage && oldImage.DeploymentID !== "$NOT_DEPLOYED")
+        request({ method: "DELETE", url: "http://backend.scrapsh.net/scraplet/" + oldImage.DeploymentID },
+            (err, response, body) => {
+                if (err) return reject(err);
+                return resolve([ response, body ]);
+            });
+    else if (newImage)
+        request({ method: "POST", url: "http://backend.scrapsh.net/scraplet/" +
+            [ newImage.ApiKey, newImage.Name, newImage.Status, newImage.Version ].
+                join("/"), body: newImage.Script },
+            (err, response, body) => {
+               if (err) return reject(err);
+               return resolve([ response, body ]);
+            });
 
-  function urlSuffix() {
-    if (!event.NewImage)
-      return "on-delete";
-    return "on-change/" + event.NewImage.Status;
-  }
+    else resolve({ statusCode: 200 });
+  });
 }

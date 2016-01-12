@@ -32,7 +32,11 @@ dependencies {
             "com.typesafe.akka:akka-cluster-sharding_2.11:${akkaVersion}",
             "com.typesafe.akka:akka-persistence_2.11:${akkaVersion}"*/
 
+    compile "com.hazelcast:hazelcast:${hazelcastVersion}",
+            "com.hazelcast:hazelcast-cloud:${hazelcastVersion}"
+
     compile "io.vertx:vertx-core:${vertxVersion}",
+            "io.vertx:vertx-hazelcast:${vertxVersion}",
             "io.vertx:vertx-web:${vertxVersion}",
             "io.vertx:vertx-tcp-eventbus-bridge:${vertxVersion}"
 
@@ -54,12 +58,11 @@ distDocker {
     baseImage "java:8"
     tagVersion "latest"
     exposePort 8080
-    exposePort 8081
-    exposePort 11211
-    exposePort 47100
-    exposePort 47400
-    exposePort 47500
-    exposePort 48100
+    exposePort 7000
+    exposePort 5701
+    setEnvironment "JAVA_OPTS",
+            "-Xms512M -Xmx1G " +
+            "-Dspring.profiles.active=production"
     push true
     registry "quay.io/scrapsh"
 }

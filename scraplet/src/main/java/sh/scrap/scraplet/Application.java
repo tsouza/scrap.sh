@@ -7,27 +7,37 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsync;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBAsyncClient;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.document.Table;
+import com.amazonaws.util.EC2MetadataUtils;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+import io.vertx.core.metrics.MetricsOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Async;
 import sh.scrap.scraplet.verticle.ManagerVerticle;
 
 import javax.annotation.PostConstruct;
+import java.util.concurrent.Future;
 
 @SpringBootApplication
 public class Application {
 
     @Autowired ManagerVerticle manager;
+    @Autowired Future<Vertx> vertx;
 
     public static void main(String[] args) throws Exception {
         SpringApplication.run(Application.class, args);
     }
 
     @PostConstruct
-    public void deployVerticle() {
-        Vertx.vertx().deployVerticle(manager);
+    public void deployVerticle() throws Exception {
+        vertx.get().deployVerticle(manager);
     }
 
     @Bean AmazonDynamoDBAsync dynamoDB() {
@@ -36,6 +46,31 @@ public class Application {
         return client;
     }
 
+    @Bean Future<Vertx> vertx(VertxOptions options) {
+        if (options.isClustered()) {
+            SettableFuture<Vertx> future = SettableFuture.create();
+            Vertx.clusteredVertx(options, (create) -> {
+                if (create.failed())
+                    future.setException(create.cause());
+                else
+                    future.set(create.result());
+            });
+            return future;
+        }
+        return Futures.immediateFuture(Vertx.vertx(options));
+    }
+
+    @Bean @Profile("development")
+    VertxOptions developmentOptions() {
+        return new VertxOptions();
+    }
+
+    @Bean @Profile("production")
+    VertxOptions productionOptions() {
+        return new VertxOptions()
+                .setClustered(true)
+                .setHAEnabled(true);
+    }
 
     /*@Bean Ignite ignite(IgniteConfiguration config) {
         return Ignition.start(config);

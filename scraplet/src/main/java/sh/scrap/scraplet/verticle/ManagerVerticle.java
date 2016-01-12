@@ -9,6 +9,8 @@ import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.google.common.collect.ImmutableMap;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.json.JsonObject;
@@ -23,6 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.SettableListenableFuture;
 import sh.scrap.scrapper.DataScrapperBuilderFactory;
 
 import java.util.Collection;
@@ -93,7 +97,12 @@ public class ManagerVerticle extends AbstractVerticle {
                             if (deployment.failed())
                                 updateStatus(context, "INVALID");
                             else
-                                updateStatus(context, "DEPLOYED", deployment.result());
+                                updateStatus(context, "DEPLOYED", deployment.result())
+                                        .addCallback((deployed) -> {
+                                                if (!deployed)
+                                                    vertx.undeploy(deployment.result(), (r) -> {});
+                                            },
+                                            (failure) -> {});
                         });
                 break;
 
@@ -113,7 +122,7 @@ public class ManagerVerticle extends AbstractVerticle {
         updateStatus(context, toStatus, "$NOT_DEPLOYED");
     }
 
-    private void updateStatus(RoutingContext context, String toStatus, String deploymentId) {
+    private ListenableFuture<Boolean> updateStatus(RoutingContext context, String toStatus, String deploymentId) {
         String apiKey = context.request().params().get("apiKey");
         String name = context.request().params().get("name");
         String status = context.request().params().get("status");
@@ -134,18 +143,22 @@ public class ManagerVerticle extends AbstractVerticle {
                         ":version", Integer.parseInt(version),
                         ":increment", 1)));
 
+        SettableListenableFuture<Boolean> result = new SettableListenableFuture<>();
         dynamodb.updateItemAsync(request, new AsyncHandler<UpdateItemRequest, UpdateItemResult>() {
             @Override
             public void onError(Exception exception) {
+                result.set(false);
                 log.error("Could not update status", exception);
 
                 context.response().setStatusCode(200).end();
             }
             @Override
             public void onSuccess(UpdateItemRequest request, UpdateItemResult updateItemResult) {
+                result.set(true);
                 context.response().setStatusCode(200).end();
             }
         });
+        return result;
     }
 
     private void handleHealthCheck(RoutingContext context) {
