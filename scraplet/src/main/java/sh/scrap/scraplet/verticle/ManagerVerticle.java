@@ -12,7 +12,10 @@ import com.google.common.collect.ImmutableMap;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Handler;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.bridge.BridgeOptions;
 import io.vertx.ext.bridge.PermittedOptions;
@@ -48,20 +51,24 @@ public class ManagerVerticle extends AbstractVerticle {
 
         router.get("/health").handler(this::handleHealthCheck);
 
-        router.post("/scraplet/:apiKey/:name/:status/:version")
+        router.put("/scraplet/:apiKey/:name/:status/:version")
                 .handler(this::handleStatusChange);
+
+        router.post("/scraplet/:apiKey/:name")
+                .handler(this::handleRequest);
 
         router.delete("/scraplet/:deploymentID")
                 .handler(this::handleDelete);
+
 
         vertx.createHttpServer()
                 .requestHandler(router::accept)
                 .listen(8080);
 
-        TcpEventBusBridge.create(vertx, new BridgeOptions()
+        /*TcpEventBusBridge.create(vertx, new BridgeOptions()
                 .addInboundPermitted(new PermittedOptions()
                         .setAddressRegex("scraplet.*")))
-                .listen(7000);
+                .listen(7000);*/
 
     }
 
@@ -109,6 +116,21 @@ public class ManagerVerticle extends AbstractVerticle {
             default:
                 context.response().setStatusCode(200).end();
         }
+    }
+
+    private void handleRequest(RoutingContext context) {
+        String apiKey = context.request().params().get("apiKey");
+        String name = context.request().params().get("name");
+
+        vertx.eventBus().send("scraplet." + apiKey + "." + name,
+                context.getBodyAsJson(), createResponseHandler(context));
+
+    }
+
+    private Handler<AsyncResult<Message<JsonObject>>> createResponseHandler(RoutingContext context) {
+        return (response) -> {
+
+        };
     }
 
     private void handleDelete(RoutingContext context) {
