@@ -1,0 +1,14 @@
+dependencies {
+
+    compile project(":scrapper-api"),
+            project(":scrapper-functions")
+
+    compile "io.projectreactor:reactor-core:$reactorVersion",
+            "io.projectreactor:reactor-stream:$reactorVersion"
+
+    compile "org.springframework:spring-core:$springVersion"
+
+    testCompile "org.slf4j:slf4j-simple:$slf4jVersion",
+                "commons-io:commons-io:$commonsIOVersion"
+
+}

@@ -1,0 +1,22 @@
+dependencies {
+
+    compile project(":scrapper-api")
+
+    compile "io.projectreactor:reactor-core:$reactorVersion",
+            "io.projectreactor:reactor-stream:$reactorVersion"
+
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion",
+            "com.jayway.jsonpath:json-path:$jsonPathVersion"
+
+    compile "net.sf.saxon:Saxon-HE:$saxonVersion",
+            "nu.validator.htmlparser:htmlparser:$htmlParserVersion",
+            "se.fishtank:css-selectors:$cssSelectorVersion"
+
+    compile "org.apache.commons:commons-lang3:$commonsLangVersion"
+
+    compile "org.springframework:spring-core:$springVersion"
+
+    testCompile project(":scrapper-core"),
+                "org.slf4j:slf4j-simple:$slf4jVersion",
+                "commons-io:commons-io:$commonsIOVersion"
+}
