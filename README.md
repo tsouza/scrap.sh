@@ -15,7 +15,7 @@ $ ./gradlew build
 
 ## Samples
 
-Checkout [scrapper-samples](tree/master/scrapper-samples) to see a sample on how to use it.
+Checkout [scrapper-samples](scrapper-samples) to see a sample on how to use it.
 
 ## Bugs and Feedback
 
